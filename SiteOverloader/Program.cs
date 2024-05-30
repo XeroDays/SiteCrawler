@@ -22,7 +22,7 @@ if (File.Exists(filePath))
 List<Helper> pending = new List<Helper>();
 AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
 
-int dividetheListintoParts = 20;
+int dividetheListintoParts = 5;
 
 //divide the list into parts and add them into another list of lists
 List<List<string>> dividedList = new List<List<string>>();

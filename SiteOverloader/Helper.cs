@@ -181,8 +181,7 @@ namespace SiteOverloader
         }
 
         public async Task CloseBrowser()
-        {
-             
+        { 
             await browser.CloseAsync();
         }
     }
