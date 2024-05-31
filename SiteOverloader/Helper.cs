@@ -8,128 +8,11 @@ using System.Threading.Tasks;
 
 namespace SiteOverloader
 {
+    
+
     internal class Helper
     {
-        //public async Task LoadAndScrapePages(List<string> urls)
-        //{
-
-
-        //    //List<string> clean = new List<string>();
-
-        //    //foreach (var item in urls)
-        //    //{ 
-        //    // clean.Add(item.Split('#').First());  
-        //    //}
-
-        //    //clean = clean.Distinct().ToList();
-        //    //foreach (var item in clean)
-        //    //{
-        //    //    await Console.Out.WriteLineAsync(item);
-        //    //}
-
-        //    //return;
-
-
-        //    // Path to local Chrome installation
-        //    var chromePath = @"C:\Users\Sayed\AppData\Local\Google\Chrome\Application\chrome.exe"; // Update this path accordingly
-
-        //    // Launch the browser using the local Chrome installation
-        //    var browser = await Puppeteer.LaunchAsync(new LaunchOptions
-        //    {
-        //        Headless = false, // Set to true if you don't want to see the browser window
-        //        ExecutablePath = chromePath,
-        //        DefaultViewport = null, // Ensure the default viewport is null
-        //        Args = new[] { "--start-maximized" }
-        //    });
-
-        //    var pages = new List<Page>();
-
-        //    // Open a new tab for each URL
-
-
-
-        //    foreach (var url in urls)
-        //    {
-        //        await Console.Out.WriteLineAsync(url);
-        //        try
-        //        {
-        //            var page = await browser.NewPageAsync();
-        //            if (page != null)
-        //            {
-        //                await Task.Delay(200);
-        //                pages.Add((Page)page);
-        //                page.GoToAsync(url);
-        //            }
-
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            await Console.Out.WriteLineAsync("Error loading: " + url);
-
-        //        }
-
-        //    }
-
-        //    // Give some time for pages to load
-        //    //await Task.Delay(5000);
-        //    //List<string> firstlink = new List<string>();
-        //    //foreach (var page in pages)
-        //    //{
-        //    //    var content = await page.GetContentAsync();
-
-        //    //    // Load the content into HtmlAgilityPack for parsing
-        //    //    var htmlDocument = new HtmlDocument();
-        //    //    htmlDocument.LoadHtml(content);
-
-        //    //    // Find all URLs in the page (all href attributes in <a> tags)
-        //    //    var links = htmlDocument.DocumentNode.SelectNodes("//a[@href]")
-        //    //        ?.Select(node => node.GetAttributeValue("href", string.Empty))
-        //    //        .Where(href => !string.IsNullOrEmpty(href))
-        //    //        .ToList();
-
-        //    //    // Display found URLs in the console
-        //    //    Console.WriteLine($"URLs found in {page.Url}:");
-        //    //    if (links != null && links.Any())
-        //    //    {
-        //    //        foreach (var link in links)
-        //    //        {
-        //    //            firstlink.Add(link);
-        //    //        }
-        //    //    }
-        //    //    else
-        //    //    {
-        //    //        Console.WriteLine("No URLs found.");
-        //    //    }
-
-        //    //    Console.WriteLine();
-        //    //}
-
-        //    Console.WriteLine("Scraping complete.  ");
-        //    Console.WriteLine("--------------------------------------------------------");
-
-
-        //    //List<string> cleann = new List<string>();
-
-        //    //foreach (var item in firstlink)
-        //    //{
-        //    //    if(item.StartsWith("/"))
-        //    //    {
-        //    //        cleann.Add("https://beta.cbd.ae"+item);
-        //    //    }  
-        //    //}
-
-
-
-        //    ////list all the clena urls
-        //    //foreach (var item in cleann)
-        //    //{
-        //    //    Console.WriteLine(item);
-        //    //}
-
-        //    Console.ReadKey();
-        //}
-
-
+       
         private IBrowser browser;
         public async Task OpenUrlsAsync(List<string> urls)
         {
@@ -146,10 +29,10 @@ namespace SiteOverloader
             });
 
             var tasks = new List<Task>();
-            int i = 1;
+            
             foreach (var url in urls)
             {
-                await Console.Out.WriteLineAsync((i++) + ". " + url);
+                await Console.Out.WriteLineAsync((DataController.sno++) + ". " + url);
                 tasks.Add(OpenPageAsync(browser, url));
             }
 

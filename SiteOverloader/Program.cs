@@ -2,9 +2,8 @@
 using SiteOverloader;
 using System.Threading.Tasks;
 
-Console.WriteLine("Hello, World!");
-
-
+Console.WriteLine("Starting Chrome Service...!");
+ 
 string currentDirectory = Directory.GetCurrentDirectory();
 
 // Path to the urls.txt file in the current directory
@@ -22,7 +21,7 @@ if (File.Exists(filePath))
 List<Helper> pending = new List<Helper>();
 AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
 
-int dividetheListintoParts = 5;
+int dividetheListintoParts =  DataController. NumberOfTabsPerSession;
 
 //divide the list into parts and add them into another list of lists
 List<List<string>> dividedList = new List<List<string>>();
