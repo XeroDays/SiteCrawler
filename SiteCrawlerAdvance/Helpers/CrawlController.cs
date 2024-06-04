@@ -9,6 +9,15 @@ namespace SiteCrawlerAdvance.Helpers
     public class CrawlController
     {
 
+        //create event and delegate when url is crawled
+        public delegate void UrlCrawledEventHandler(string url);
+        public event UrlCrawledEventHandler UrlCrawledStarted;
+        public event UrlCrawledEventHandler UrlCrawledSuccess;
+        public event UrlCrawledEventHandler UrlCrawledFailed;
+
+
+
+
         public async Task StartCrawling(string url, int NumberOfTabsPerSession)
         {
 
@@ -28,7 +37,7 @@ namespace SiteCrawlerAdvance.Helpers
                 urls = new List<string>(File.ReadAllLines(filePath));
             }
 
-            List<Helper> pending = new List<Helper>();
+            List<Crawler> pending = new List<Crawler>();
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
 
             int dividetheListintoParts = NumberOfTabsPerSession;
@@ -42,7 +51,22 @@ namespace SiteCrawlerAdvance.Helpers
 
             foreach (List<string> item in dividedList)
             {
-                var browserAutomation4 = new Helper();
+                var browserAutomation4 = new Crawler();
+                browserAutomation4.UrlCrawledStarted += (url) =>
+                {
+                    UrlCrawledStarted(url);
+                };
+
+                browserAutomation4.UrlCrawledSuccess += (url) =>
+                {
+                    UrlCrawledSuccess(url);
+                };
+
+                browserAutomation4.UrlCrawledFailed += (url) =>
+                {
+                    UrlCrawledFailed(url);
+                };
+
                 pending.Add(browserAutomation4);
                 var task1 = browserAutomation4.OpenUrlsAsync(item);
                 await Task.WhenAll(task1);

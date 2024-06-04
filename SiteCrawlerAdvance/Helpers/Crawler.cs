@@ -3,10 +3,14 @@ using PuppeteerSharp;
 
 namespace SiteCrawlerAdvance
 {
-
-
-    internal class Helper
+     
+    internal class Crawler
     {
+        public delegate void SiteCrawledEventHandler(string url);
+        public event SiteCrawledEventHandler UrlCrawledStarted;
+        public event SiteCrawledEventHandler UrlCrawledSuccess;
+        public event SiteCrawledEventHandler UrlCrawledFailed;
+
 
         static string GetChromePath()
         {
@@ -51,7 +55,9 @@ namespace SiteCrawlerAdvance
 
             foreach (var url in urls)
             {
-                await Console.Out.WriteLineAsync((DataController.sno++) + ". " + url);
+                string log = (DataController.sno++) + ". " + url;
+                await Console.Out.WriteLineAsync(log);
+                UrlCrawledStarted(log);
                 tasks.Add(OpenPageAsync(browser, url));
             }
 
@@ -64,21 +70,24 @@ namespace SiteCrawlerAdvance
         {
             using var page = await browser.NewPageAsync();
             try
-            {
-                // Increase the timeout to 60 seconds (60000 milliseconds)
+            { 
                 await page.GoToAsync(url, new NavigationOptions { Timeout = 60000 });
+                UrlCrawledSuccess(url);
             }
             catch (PuppeteerSharp.NavigationException ex)
             {
                 Console.WriteLine($"Failed to navigate to {url}: {ex.Message}");
+                UrlCrawledFailed(url);
             }
             catch (TimeoutException ex)
             {
                 Console.WriteLine($"Timeout when navigating to {url}: {ex.Message}");
+                UrlCrawledFailed(url);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred when navigating to {url}: {ex.Message}");
+                UrlCrawledFailed(url);
             }
         }
 

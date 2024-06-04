@@ -33,6 +33,7 @@
             panel1 = new Panel();
             label1 = new Label();
             numbericCount = new NumericUpDown();
+            textBox2 = new TextBox();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numbericCount).BeginInit();
             SuspendLayout();
@@ -92,11 +93,20 @@
             numbericCount.TabIndex = 0;
             numbericCount.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
+            // textBox2
+            // 
+            textBox2.Location = new Point(248, 16);
+            textBox2.Multiline = true;
+            textBox2.Name = "textBox2";
+            textBox2.Size = new Size(556, 623);
+            textBox2.TabIndex = 3;
+            // 
             // MainMenu
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(816, 651);
+            Controls.Add(textBox2);
             Controls.Add(panel1);
             Controls.Add(btnStart);
             Controls.Add(textBox1);
@@ -117,5 +127,6 @@
         private Panel panel1;
         private Label label1;
         private NumericUpDown numbericCount;
+        private TextBox textBox2;
     }
 }

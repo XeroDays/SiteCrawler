@@ -16,11 +16,16 @@ namespace SiteCrawlerAdvance
         public MainMenu()
         {
             InitializeComponent();
+            numbericCount.Value = 5;
         }
 
         private async void btnStart_Click(object sender, EventArgs e)
         {
             CrawlController helper = new CrawlController();
+            helper.UrlCrawled += (url) =>
+            {
+                textBox2.Text += url + Environment.NewLine;
+            };
             await helper.StartCrawling(textBox1.Text, Convert.ToInt32(numbericCount.Value)); 
         }
     }
