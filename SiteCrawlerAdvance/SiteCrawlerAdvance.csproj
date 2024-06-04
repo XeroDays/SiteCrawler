@@ -13,4 +13,10 @@
     <PackageReference Include="PuppeteerSharp" Version="18.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="urls.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

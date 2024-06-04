@@ -29,46 +29,83 @@
         private void InitializeComponent()
         {
             textBox1 = new TextBox();
-            button1 = new Button();
+            btnStart = new Button();
             panel1 = new Panel();
+            label1 = new Label();
+            numbericCount = new NumericUpDown();
+            panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)numbericCount).BeginInit();
             SuspendLayout();
             // 
             // textBox1
             // 
-            textBox1.Location = new Point(32, 272);
+            textBox1.BorderStyle = BorderStyle.FixedSingle;
+            textBox1.Location = new Point(14, 157);
+            textBox1.Margin = new Padding(3, 4, 3, 4);
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(383, 23);
+            textBox1.Size = new Size(228, 27);
             textBox1.TabIndex = 0;
             textBox1.Text = "https://beta.cbd.ae";
             // 
-            // button1
+            // btnStart
             // 
-            button1.Location = new Point(32, 301);
-            button1.Name = "button1";
-            button1.Size = new Size(75, 23);
-            button1.TabIndex = 1;
-            button1.Text = "button1";
-            button1.UseVisualStyleBackColor = true;
+            btnStart.BackColor = Color.Lime;
+            btnStart.FlatAppearance.BorderColor = Color.Green;
+            btnStart.FlatStyle = FlatStyle.Flat;
+            btnStart.ForeColor = Color.FromArgb(64, 64, 64);
+            btnStart.Location = new Point(14, 192);
+            btnStart.Margin = new Padding(3, 4, 3, 4);
+            btnStart.Name = "btnStart";
+            btnStart.Size = new Size(228, 31);
+            btnStart.TabIndex = 1;
+            btnStart.Text = "Intiate";
+            btnStart.UseVisualStyleBackColor = false;
+            btnStart.Click += btnStart_Click;
             // 
             // panel1
             // 
             panel1.BorderStyle = BorderStyle.FixedSingle;
+            panel1.Controls.Add(label1);
+            panel1.Controls.Add(numbericCount);
             panel1.ForeColor = Color.FromArgb(64, 64, 64);
-            panel1.Location = new Point(12, 12);
+            panel1.Location = new Point(14, 16);
+            panel1.Margin = new Padding(3, 4, 3, 4);
             panel1.Name = "panel1";
-            panel1.Size = new Size(200, 100);
+            panel1.Size = new Size(228, 133);
             panel1.TabIndex = 2;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(3, 10);
+            label1.Name = "label1";
+            label1.Size = new Size(75, 20);
+            label1.TabIndex = 1;
+            label1.Text = "Group Set";
+            // 
+            // numbericCount
+            // 
+            numbericCount.Location = new Point(84, 8);
+            numbericCount.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            numbericCount.Name = "numbericCount";
+            numbericCount.Size = new Size(139, 27);
+            numbericCount.TabIndex = 0;
+            numbericCount.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // MainMenu
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(816, 651);
             Controls.Add(panel1);
-            Controls.Add(button1);
+            Controls.Add(btnStart);
             Controls.Add(textBox1);
+            Margin = new Padding(3, 4, 3, 4);
             Name = "MainMenu";
             Text = "MainMenu";
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)numbericCount).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -76,7 +113,9 @@
         #endregion
 
         private TextBox textBox1;
-        private Button button1;
+        private Button btnStart;
         private Panel panel1;
+        private Label label1;
+        private NumericUpDown numbericCount;
     }
 }

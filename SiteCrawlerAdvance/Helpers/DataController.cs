@@ -8,7 +8,6 @@ namespace SiteCrawlerAdvance
 {
     public class DataController
     {
-        public static int sno = 1;
-        public const int NumberOfTabsPerSession = 20;
+        public static int sno = 1; 
     }
 }
