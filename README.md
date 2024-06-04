@@ -74,7 +74,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Contact
 
-For any questions or suggestions, please open an issue in the [GitHub repository](https://github.com/yourusername/site-crawler/issues) or contact the project maintainer.
+For any questions or suggestions, please open an issue in the [GitHub repository](https://github.com/XeroDays/SiteCrawler/issues) or contact the project maintainer.
 
 ---
 
