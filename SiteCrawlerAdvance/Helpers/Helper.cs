@@ -1,12 +1,7 @@
-﻿using HtmlAgilityPack;
-using PuppeteerSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿ 
+using PuppeteerSharp; 
 
-namespace SiteOverloader
+namespace SiteCrawlerAdvance
 {
 
 
@@ -14,8 +9,8 @@ namespace SiteOverloader
     {
 
         static string GetChromePath()
-        { 
-            string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile); 
+        {
+            string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             List<string> potentialPaths = new List<string>
             {
                 Path.Combine(userProfile, "AppData", "Local", "Google", "Chrome", "Application", "chrome.exe"),
@@ -30,7 +25,7 @@ namespace SiteOverloader
                 {
                     return path;
                 }
-            } 
+            }
             throw new FileNotFoundException("Chrome executable not found in standard locations.");
         }
 
