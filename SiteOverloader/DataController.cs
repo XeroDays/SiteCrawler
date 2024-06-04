@@ -9,6 +9,6 @@ namespace SiteOverloader
     public class DataController
     {
         public static int sno = 1;
-        public const int NumberOfTabsPerSession = 50;
+        public const int NumberOfTabsPerSession = 20;
     }
 }
