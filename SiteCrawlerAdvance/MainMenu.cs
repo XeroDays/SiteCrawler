@@ -22,9 +22,14 @@ namespace SiteCrawlerAdvance
         private async void btnStart_Click(object sender, EventArgs e)
         {
             CrawlController helper = new CrawlController();
-            helper.UrlCrawled += (url) =>
+            helper.UrlCrawledStarted += (url) =>
             {
-                textBox2.Text += url + Environment.NewLine;
+                txtSuccess.Text += url + Environment.NewLine;
+            };
+
+            helper.UrlCrawledFailed+= (url) =>
+            {
+                ErrorLog.Text += url + Environment.NewLine;
             };
             await helper.StartCrawling(textBox1.Text, Convert.ToInt32(numbericCount.Value)); 
         }

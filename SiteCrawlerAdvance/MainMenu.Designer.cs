@@ -33,7 +33,8 @@
             panel1 = new Panel();
             label1 = new Label();
             numbericCount = new NumericUpDown();
-            textBox2 = new TextBox();
+            txtSuccess = new TextBox();
+            ErrorLog = new TextBox();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numbericCount).BeginInit();
             SuspendLayout();
@@ -93,23 +94,34 @@
             numbericCount.TabIndex = 0;
             numbericCount.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
-            // textBox2
+            // txtSuccess
             // 
-            textBox2.Location = new Point(248, 16);
-            textBox2.Multiline = true;
-            textBox2.Name = "textBox2";
-            textBox2.Size = new Size(556, 623);
-            textBox2.TabIndex = 3;
+            txtSuccess.Location = new Point(248, 16);
+            txtSuccess.Multiline = true;
+            txtSuccess.Name = "txtSuccess";
+            txtSuccess.Size = new Size(556, 623);
+            txtSuccess.TabIndex = 3;
+            // 
+            // ErrorLog
+            // 
+            ErrorLog.ForeColor = Color.Red;
+            ErrorLog.Location = new Point(810, 16);
+            ErrorLog.Multiline = true;
+            ErrorLog.Name = "ErrorLog";
+            ErrorLog.Size = new Size(556, 623);
+            ErrorLog.TabIndex = 4;
             // 
             // MainMenu
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(816, 651);
-            Controls.Add(textBox2);
+            ClientSize = new Size(1380, 651);
+            Controls.Add(ErrorLog);
+            Controls.Add(txtSuccess);
             Controls.Add(panel1);
             Controls.Add(btnStart);
             Controls.Add(textBox1);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             Margin = new Padding(3, 4, 3, 4);
             Name = "MainMenu";
             Text = "MainMenu";
@@ -127,6 +139,7 @@
         private Panel panel1;
         private Label label1;
         private NumericUpDown numbericCount;
-        private TextBox textBox2;
+        private TextBox txtSuccess;
+        private TextBox ErrorLog;
     }
 }
