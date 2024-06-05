@@ -23,7 +23,11 @@ jobs:
 
     - name: Build
       run: dotnet build --configuration Release
-
+    
+    
+    - name: List Solution Directory
+      run: Get-ChildItem -Path . -Recurse
+      
     - name: Create Zip Archive
       run: |
         Compress-Archive -Path ./Siteoverloader/bin/Debug/net8.0-windows -DestinationPath SiteCrawler_Software.zip
