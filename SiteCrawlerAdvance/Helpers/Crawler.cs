@@ -71,8 +71,22 @@ namespace SiteCrawlerAdvance
             using var page = await browser.NewPageAsync();
             try
             {
-               
-                 
+                await page.SetRequestInterceptionAsync(true);
+
+                // Intercept requests and block scripts
+                page.Request += async (sender, e) =>
+                {
+                    if (e.Request.ResourceType == ResourceType.Script)
+                    {
+                        await e.Request.AbortAsync();
+                    }
+                    else
+                    {
+                        await e.Request.ContinueAsync();
+                    }
+                };
+
+
                 await page.GoToAsync(url,new NavigationOptions { 
                     Timeout = 30000 
                 });
@@ -82,39 +96,8 @@ namespace SiteCrawlerAdvance
                     Console.WriteLine("Page is null");
                     return;
                 }
-                // Extract all URLs from the page
-                //var newurls = await page.EvaluateExpressionAsync<string[]>(@"
-                //    Array.from(document.querySelectorAll('a'))
-                //        .map(anchor => anchor.href)
-                //        .filter(href => href)
-                //");
 
-                //// Print the extracted URLs
-                //foreach (string urll in newurls)
-                //{
-                //    string clean1 = urll.Split('?').ToList().First();
-                //    clean1 = Uri.UnescapeDataString(clean1);
-                //    clean1 = clean1.Split("/#").ToList().First();
-                //    clean1 = clean1.Split("#").ToList().First();
-                //    //remove last slash
-                //    if (clean1.Last() == '/')
-                //    {
-                //        clean1 = clean1.Substring(0, clean1.Length - 1);
-                //    }
-
-
-                //    //check if the url neding is pdf
-                //    if (clean1.EndsWith(".pdf"))
-                //    {
-                //        continue;
-                //    } 
-
-                //    if (new Uri(clean1).Host == new Uri(url).Host)
-                //    {
-                //        OnNewUrlFound?.Invoke(clean1);
-                //    }
-                //}
-
+                await getUrlsFromPage(page,url);
                 UrlCrawledSuccess?.Invoke(url);
 
 
@@ -135,6 +118,44 @@ namespace SiteCrawlerAdvance
                 UrlCrawledFailed?.Invoke("Error: " + url);
             }
         }
+
+
+        private async Task getUrlsFromPage(IPage page,string url)
+        {
+            // Extract all URLs from the page
+            var newurls = await page.EvaluateExpressionAsync<string[]>(@"
+                Array.from(document.querySelectorAll('a'))
+                    .map(anchor => anchor.href)
+                    .filter(href => href)
+            ");
+
+            // Print the extracted URLs
+            foreach (string urll in newurls)
+            {
+                string clean1 = urll.Split('?').ToList().First();
+                clean1 = Uri.UnescapeDataString(clean1);
+                clean1 = clean1.Split("/#").ToList().First();
+                clean1 = clean1.Split("#").ToList().First();
+                //remove last slash
+                if (clean1.Last() == '/')
+                {
+                    clean1 = clean1.Substring(0, clean1.Length - 1);
+                }
+
+
+                //check if the url neding is pdf
+                if (clean1.EndsWith(".pdf"))
+                {
+                    continue;
+                }
+
+                if (new Uri(clean1).Host == new Uri(url).Host)
+                {
+                    OnNewUrlFound?.Invoke(clean1);
+                }
+            }
+        }
+
 
         public async Task CloseBrowser()
         {
