@@ -19,7 +19,7 @@ jobs:
         dotnet-version: '5.0'
 
     - name: Restore dependencies
-      run: dotnet restore UniversalCodeHelper.sln
+      run: dotnet restore Siteoverloader.sln
 
     - name: Build
       run: dotnet build --configuration Release
