@@ -77,17 +77,19 @@ namespace SiteCrawlerAdvance
             catch (PuppeteerSharp.NavigationException ex)
             {
                 Console.WriteLine($"Failed to navigate to {url}: {ex.Message}");
-                UrlCrawledFailed(url);
+                
+                
+                UrlCrawledFailed?.Invoke(url);
             }
             catch (TimeoutException ex)
             {
                 Console.WriteLine($"Timeout when navigating to {url}: {ex.Message}");
-                UrlCrawledFailed(url);
+                UrlCrawledFailed?.Invoke(url);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred when navigating to {url}: {ex.Message}");
-                UrlCrawledFailed(url);
+                UrlCrawledFailed?.Invoke(url);
             }
         }
 

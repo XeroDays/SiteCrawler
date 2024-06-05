@@ -54,17 +54,17 @@ namespace SiteCrawlerAdvance.Helpers
                 var browserAutomation4 = new Crawler();
                 browserAutomation4.UrlCrawledStarted += (url) =>
                 {
-                    UrlCrawledStarted(url);
+                    UrlCrawledStarted?.Invoke(url);
                 };
 
                 browserAutomation4.UrlCrawledSuccess += (url) =>
                 {
-                    UrlCrawledSuccess(url);
+                    UrlCrawledSuccess?.Invoke(url);
                 };
 
                 browserAutomation4.UrlCrawledFailed += (url) =>
                 {
-                    UrlCrawledFailed(url);
+                    UrlCrawledFailed?.Invoke(url);
                 };
 
                 pending.Add(browserAutomation4);

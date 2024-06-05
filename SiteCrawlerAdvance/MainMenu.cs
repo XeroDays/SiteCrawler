@@ -22,7 +22,7 @@ namespace SiteCrawlerAdvance
         private async void btnStart_Click(object sender, EventArgs e)
         {
             CrawlController helper = new CrawlController();
-            helper.UrlCrawledStarted += (url) =>
+            helper.UrlCrawledSuccess += (url) =>
             {
                 txtSuccess.Text += url + Environment.NewLine;
             };
