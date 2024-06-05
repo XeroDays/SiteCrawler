@@ -54,13 +54,36 @@ namespace SiteCrawlerAdvance
                 urlsFound.Sort();
                 lblTotalUrlFound.Text = urlsFound.Count.ToString();
                 txtUrls.Text = string.Join(Environment.NewLine, urlsFound);
+                updateLogFile();
             };
 
             //take all  the urls from txturls and remove duplicates and again set to txturls
 
 
+            List<string> urls = txtBaseUrl.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            helper.StartCrawling(urls, Convert.ToInt32(numbericCount.Value));
+        }
 
-            helper.StartCrawling(txtBaseUrl.Text, Convert.ToInt32(numbericCount.Value));
+        void updateLogFile()
+        {
+            //take path from current directory and append log.txt
+            string path = System.IO.Path.Combine(Environment.CurrentDirectory, "urls.txt");
+
+            //if file doesn exist create one
+            if (!System.IO.File.Exists(path))
+            {
+                System.IO.File.Create(path).Close();
+            }
+
+            //add all the urls with serial number to the file
+            System.IO.File.WriteAllLines(path, urlsFound.Select((url, index) => (index + 1) + ". " + url));
+
+
+        }
+
+        private void txtBaseUrl_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

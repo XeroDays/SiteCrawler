@@ -63,9 +63,7 @@ namespace SiteCrawlerAdvance
             }
 
             await Task.WhenAll(tasks);
-            await browser.CloseAsync();
-            await CloseBrowser();
-            //await Task.Delay(90000);
+            await browser.CloseAsync(); 
         }
 
         private async Task OpenPageAsync(IBrowser browser, string url)
@@ -73,39 +71,53 @@ namespace SiteCrawlerAdvance
             using var page = await browser.NewPageAsync();
             try
             {
-                if(page==null)
+               
+                 
+                await page.GoToAsync(url,new NavigationOptions { 
+                    Timeout = 30000 
+                });
+
+                if (page.MainFrame == null)
                 {
-                    Console.WriteLine("Page is null"); 
+                    Console.WriteLine("Page is null");
                     return;
                 }
-
-                page.DefaultTimeout = 90000;
-                await page.GoToAsync(url, WaitUntilNavigation.DOMContentLoaded);
-
                 // Extract all URLs from the page
-                var newurls = await page.EvaluateExpressionAsync<string[]>(@"
-                    Array.from(document.querySelectorAll('a'))
-                        .map(anchor => anchor.href)
-                        .filter(href => href)
-                ");
+                //var newurls = await page.EvaluateExpressionAsync<string[]>(@"
+                //    Array.from(document.querySelectorAll('a'))
+                //        .map(anchor => anchor.href)
+                //        .filter(href => href)
+                //");
+
+                //// Print the extracted URLs
+                //foreach (string urll in newurls)
+                //{
+                //    string clean1 = urll.Split('?').ToList().First();
+                //    clean1 = Uri.UnescapeDataString(clean1);
+                //    clean1 = clean1.Split("/#").ToList().First();
+                //    clean1 = clean1.Split("#").ToList().First();
+                //    //remove last slash
+                //    if (clean1.Last() == '/')
+                //    {
+                //        clean1 = clean1.Substring(0, clean1.Length - 1);
+                //    }
 
 
+                //    //check if the url neding is pdf
+                //    if (clean1.EndsWith(".pdf"))
+                //    {
+                //        continue;
+                //    } 
 
-                // Print the extracted URLs
-                foreach (string urll in newurls)
-                {
-                    string clean1 = urll.Split('?').ToList().First();
-                    clean1 = Uri.UnescapeDataString(clean1);
-                    clean1 = clean1.Split("/#").ToList().First();
-                    clean1 = clean1.Split("#").ToList().First();
+                //    if (new Uri(clean1).Host == new Uri(url).Host)
+                //    {
+                //        OnNewUrlFound?.Invoke(clean1);
+                //    }
+                //}
 
-                    if (new Uri(clean1).Host == new Uri(url).Host)
-                    {
-                        OnNewUrlFound?.Invoke(clean1);
-                    }
-                }
+                UrlCrawledSuccess?.Invoke(url);
 
-                UrlCrawledSuccess(url);
+
             }
             catch (PuppeteerSharp.NavigationException ex)
             {

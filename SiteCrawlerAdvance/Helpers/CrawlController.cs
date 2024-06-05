@@ -24,15 +24,15 @@ namespace SiteCrawlerAdvance.Helpers
 
 
 
-        public void StartCrawling(string url, int numberOfTabsPerSession)
+        public void StartCrawling(List<string> urls, int numberOfTabsPerSession)
         {
             NumberOfTabsPerSession = numberOfTabsPerSession;
 
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
 
-            UrlsToComplete.Add(url);
-             
-            InitiateBunch(new List<string> { url});
+            UrlsToComplete.AddRange(urls);
+
+            ReTrigger();
         }
 
 
@@ -78,6 +78,9 @@ namespace SiteCrawlerAdvance.Helpers
                  
                 //remove duplicates from urlstocomeplte
                 UrlsToComplete = UrlsToComplete.Distinct().ToList();
+
+                //remove the urls which are already done
+                UrlsToComplete = UrlsToComplete.Except(UrlsDone).ToList();
 
                 //take only 25 items from the urlsToComplete and remove them from the list
                 for (int i = 0; i < NumberOfTabsPerSession; i++)
