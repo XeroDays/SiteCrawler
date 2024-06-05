@@ -73,6 +73,12 @@ namespace SiteCrawlerAdvance
             using var page = await browser.NewPageAsync();
             try
             {
+                if(page==null)
+                {
+                    Console.WriteLine("Page is null"); 
+                    return;
+                }
+
                 page.DefaultTimeout = 90000;
                 await page.GoToAsync(url, WaitUntilNavigation.DOMContentLoaded);
 
