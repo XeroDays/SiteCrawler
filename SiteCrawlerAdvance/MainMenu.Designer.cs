@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            textBox1 = new TextBox();
+            txtBaseUrl = new TextBox();
             btnStart = new Button();
             panel1 = new Panel();
             label1 = new Label();
@@ -49,15 +49,15 @@
             panel2.SuspendLayout();
             SuspendLayout();
             // 
-            // textBox1
+            // txtBaseUrl
             // 
-            textBox1.BorderStyle = BorderStyle.FixedSingle;
-            textBox1.Location = new Point(14, 157);
-            textBox1.Margin = new Padding(3, 4, 3, 4);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(162, 27);
-            textBox1.TabIndex = 0;
-            textBox1.Text = "https://beta.cbd.ae";
+            txtBaseUrl.BorderStyle = BorderStyle.FixedSingle;
+            txtBaseUrl.Location = new Point(14, 157);
+            txtBaseUrl.Margin = new Padding(3, 4, 3, 4);
+            txtBaseUrl.Name = "txtBaseUrl";
+            txtBaseUrl.Size = new Size(162, 27);
+            txtBaseUrl.TabIndex = 0;
+            txtBaseUrl.Text = "https://beta.cbd.ae";
             // 
             // btnStart
             // 
@@ -130,7 +130,7 @@
             // 
             txtUrls.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
             txtUrls.Font = new Font("Segoe UI", 7.8F);
-            txtUrls.ForeColor = Color.Red;
+            txtUrls.ForeColor = Color.FromArgb(0, 192, 0);
             txtUrls.Location = new Point(1094, 14);
             txtUrls.Multiline = true;
             txtUrls.Name = "txtUrls";
@@ -233,7 +233,7 @@
             Controls.Add(txtSuccess);
             Controls.Add(panel1);
             Controls.Add(btnStart);
-            Controls.Add(textBox1);
+            Controls.Add(txtBaseUrl);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Margin = new Padding(3, 4, 3, 4);
             Name = "MainMenu";
@@ -249,7 +249,7 @@
 
         #endregion
 
-        private TextBox textBox1;
+        private TextBox txtBaseUrl;
         private Button btnStart;
         private Panel panel1;
         private Label label1;

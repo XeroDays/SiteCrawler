@@ -16,78 +16,91 @@ namespace SiteCrawlerAdvance.Helpers
         public event UrlCrawledEventHandler UrlCrawledFailed;
         public event UrlCrawledEventHandler OnNewUrlFound;
 
+        List<string> UrlsToComplete = new List<string>();
+        List<string> UrlsDone = new List<string>();
+        List<Crawler> pending = new List<Crawler>();
+
+        private int NumberOfTabsPerSession;
 
 
 
-        public async Task StartCrawling(string url, int NumberOfTabsPerSession)
+        public void StartCrawling(string url, int numberOfTabsPerSession)
         {
+            NumberOfTabsPerSession = numberOfTabsPerSession;
 
-            Console.WriteLine("Starting Chrome Service...!");
-
-            string currentDirectory = Directory.GetCurrentDirectory();
-
-            // Path to the urls.txt file in the current directory
-            string filePath = Path.Combine(currentDirectory, "urls.txt");
-            List<string> urls = new List<string>();
-            //urls.Add("https://beta.cbd.ae");
-            //urls.Add("https://beta.cbd.ae/islami");
-
-            if (File.Exists(filePath))
-            {
-                // Read all lines from the file and store them in a list
-                urls = new List<string>(File.ReadAllLines(filePath));
-            }
-
-            List<Crawler> pending = new List<Crawler>();
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
 
-            int dividetheListintoParts = NumberOfTabsPerSession;
-            //divide the list into parts and add them into another list of lists
-            List<List<string>> dividedList = new List<List<string>>();
-            for (int i = 0; i < urls.Count; i += dividetheListintoParts)
+            UrlsToComplete.Add(url);
+             
+            InitiateBunch(new List<string> { url});
+        }
+
+
+
+        private async void InitiateBunch(List<string> urls)
+        {
+            Crawler browserCrawler = new Crawler();
+            browserCrawler.UrlCrawledStarted += (url) =>
             {
-                dividedList.Add(urls.GetRange(i, Math.Min(dividetheListintoParts, urls.Count - i)));
-            }
+                UrlCrawledStarted?.Invoke(url);
+            };
 
-
-            foreach (List<string> item in dividedList)
+            browserCrawler.UrlCrawledSuccess += (url) =>
             {
-                Crawler browserCrawler = new Crawler();
-                browserCrawler.UrlCrawledStarted += (url) =>
-                {
-                    UrlCrawledStarted?.Invoke(url);
-                };
+                UrlCrawledSuccess?.Invoke(url);
+            };
 
-                browserCrawler.UrlCrawledSuccess += (url) =>
-                {
-                    UrlCrawledSuccess?.Invoke(url);
-                };
-
-                browserCrawler.UrlCrawledFailed += (url) =>
-                {
-                    UrlCrawledFailed?.Invoke(url);
-                };
-
-                browserCrawler.OnNewUrlFound += (url) =>
-                {
-                    OnNewUrlFound?.Invoke(url);
-                };
-
-                pending.Add(browserCrawler);
-                var task = browserCrawler.OpenUrlsAsync(item);
-                await Task.WhenAll(task);
-                await browserCrawler.CloseBrowser();
-                pending.Remove(browserCrawler);
-            }
-
-            async void OnProcessExit(object? sender, EventArgs e)
+            browserCrawler.UrlCrawledFailed += (url) =>
             {
-                foreach (var item in pending)
+                UrlCrawledFailed?.Invoke(url);
+            };
+
+            browserCrawler.OnNewUrlFound += (url) =>
+            {
+                UrlsToComplete.Add(url);
+                OnNewUrlFound?.Invoke(url);
+            };
+
+            pending.Add(browserCrawler);
+            var task = browserCrawler.OpenUrlsAsync(urls);
+            await Task.WhenAll(task);
+            await browserCrawler.CloseBrowser();
+            pending.Remove(browserCrawler);
+            ReTrigger();
+        }
+
+
+        private void ReTrigger()
+        {
+            if (UrlsToComplete.Count > 0)
+            {
+                List<string> urlsCheck = new List<string>();
+                 
+                //remove duplicates from urlstocomeplte
+                UrlsToComplete = UrlsToComplete.Distinct().ToList();
+
+                //take only 25 items from the urlsToComplete and remove them from the list
+                for (int i = 0; i < NumberOfTabsPerSession; i++)
                 {
-                    await item.CloseBrowser();
+                    if (UrlsToComplete.Count > 0)
+                    {
+                        urlsCheck.Add(UrlsToComplete[0]);
+                        UrlsToComplete.RemoveAt(0);
+                    }
                 }
-                Console.WriteLine("Process is exiting");
+                 
+                InitiateBunch(urlsCheck);
             }
+        }
+
+
+        async void OnProcessExit(object? sender, EventArgs e)
+        {
+            foreach (var item in pending)
+            {
+                await item.CloseBrowser();
+            }
+            Console.WriteLine("Process is exiting");
         }
 
     }

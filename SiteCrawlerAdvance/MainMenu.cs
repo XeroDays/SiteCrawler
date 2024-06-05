@@ -23,7 +23,7 @@ namespace SiteCrawlerAdvance
         List<string> urlSucceed = new List<string>();
         List<string> urlsFailed = new List<string>();
 
-        private async void btnStart_Click(object sender, EventArgs e)
+        private void btnStart_Click(object sender, EventArgs e)
         {
             CrawlController helper = new CrawlController();
             helper.UrlCrawledSuccess += (url) =>
@@ -60,7 +60,7 @@ namespace SiteCrawlerAdvance
 
 
 
-            await helper.StartCrawling(textBox1.Text, Convert.ToInt32(numbericCount.Value));
+            helper.StartCrawling(txtBaseUrl.Text, Convert.ToInt32(numbericCount.Value));
         }
     }
 }
