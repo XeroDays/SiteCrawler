@@ -1,0 +1,73 @@
+name: Release Workflow
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    name: Build Release
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0'
+
+    - name: Restore dependencies
+      run: dotnet restore UniversalCodeHelper.sln
+
+    - name: Build
+      run: dotnet build --configuration Release
+
+    - name: Create Zip Archive
+      run: |
+        Compress-Archive -Path ./UniversalCodeHelper/bin/Release/net5.0-windows -DestinationPath UniversalCodeHelper_Software.zip
+      if: success()
+
+    - name: Publish Release Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: WinForms-Release
+        path: UniversalCodeHelper_Software.zip
+
+  publish:
+    name: Publish Release to GitHub
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Download Release Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: WinForms-Release
+        path: ./
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./UniversalCodeHelper_Software.zip
+        asset_name: UniversalCodeHelper_Software.zip
+        asset_content_type: application/zip
