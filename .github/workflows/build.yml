@@ -30,7 +30,7 @@ jobs:
       
     - name: Create Zip Archive
       run: |
-        Compress-Archive -Path ./SiteCrawler/SiteCrawler/SiteCrawlerAdvance/bin/Release/net8.0-windows -DestinationPath SiteCrawler_Software.zip
+        Compress-Archive -Path ./SiteCrawler/SiteCrawlerAdvance/bin/Release/net8.0-windows -DestinationPath SiteCrawler_Software.zip
       if: success()
 
     - name: Publish Release Artifact
