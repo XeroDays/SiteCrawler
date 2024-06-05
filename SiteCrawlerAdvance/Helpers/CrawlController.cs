@@ -14,6 +14,7 @@ namespace SiteCrawlerAdvance.Helpers
         public event UrlCrawledEventHandler UrlCrawledStarted;
         public event UrlCrawledEventHandler UrlCrawledSuccess;
         public event UrlCrawledEventHandler UrlCrawledFailed;
+        public event UrlCrawledEventHandler OnNewUrlFound;
 
 
 
@@ -51,26 +52,32 @@ namespace SiteCrawlerAdvance.Helpers
 
             foreach (List<string> item in dividedList)
             {
-                var browserAutomation4 = new Crawler();
-                browserAutomation4.UrlCrawledStarted += (url) =>
+                Crawler browserCrawler = new Crawler();
+                browserCrawler.UrlCrawledStarted += (url) =>
                 {
                     UrlCrawledStarted?.Invoke(url);
                 };
 
-                browserAutomation4.UrlCrawledSuccess += (url) =>
+                browserCrawler.UrlCrawledSuccess += (url) =>
                 {
                     UrlCrawledSuccess?.Invoke(url);
                 };
 
-                browserAutomation4.UrlCrawledFailed += (url) =>
+                browserCrawler.UrlCrawledFailed += (url) =>
                 {
                     UrlCrawledFailed?.Invoke(url);
                 };
 
-                pending.Add(browserAutomation4);
-                var task1 = browserAutomation4.OpenUrlsAsync(item);
-                await Task.WhenAll(task1);
-                pending.Remove(browserAutomation4);
+                browserCrawler.OnNewUrlFound += (url) =>
+                {
+                    OnNewUrlFound?.Invoke(url);
+                };
+
+                pending.Add(browserCrawler);
+                var task = browserCrawler.OpenUrlsAsync(item);
+                await Task.WhenAll(task);
+                await browserCrawler.CloseBrowser();
+                pending.Remove(browserCrawler);
             }
 
             async void OnProcessExit(object? sender, EventArgs e)

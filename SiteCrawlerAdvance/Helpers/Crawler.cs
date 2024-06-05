@@ -1,15 +1,16 @@
-﻿ 
-using PuppeteerSharp; 
+﻿
+using PuppeteerSharp;
 
 namespace SiteCrawlerAdvance
 {
-     
+
     internal class Crawler
     {
         public delegate void SiteCrawledEventHandler(string url);
         public event SiteCrawledEventHandler UrlCrawledStarted;
         public event SiteCrawledEventHandler UrlCrawledSuccess;
         public event SiteCrawledEventHandler UrlCrawledFailed;
+        public event SiteCrawledEventHandler OnNewUrlFound;
 
 
         static string GetChromePath()
@@ -63,6 +64,7 @@ namespace SiteCrawlerAdvance
 
             await Task.WhenAll(tasks);
             await browser.CloseAsync();
+            await CloseBrowser();
             //await Task.Delay(90000);
         }
 
@@ -70,26 +72,49 @@ namespace SiteCrawlerAdvance
         {
             using var page = await browser.NewPageAsync();
             try
-            { 
-                await page.GoToAsync(url, new NavigationOptions { Timeout = 60000 });
+            {
+                page.DefaultTimeout = 90000;
+                await page.GoToAsync(url, WaitUntilNavigation.DOMContentLoaded);
+
+                // Extract all URLs from the page
+                var newurls = await page.EvaluateExpressionAsync<string[]>(@"
+                    Array.from(document.querySelectorAll('a'))
+                        .map(anchor => anchor.href)
+                        .filter(href => href)
+                ");
+
+
+
+                // Print the extracted URLs
+                foreach (string urll in newurls)
+                {
+                    string clean1 = urll.Split('?').ToList().First();
+                    clean1 = Uri.UnescapeDataString(clean1);
+                    clean1 = clean1.Split("/#").ToList().First();
+                    clean1 = clean1.Split("#").ToList().First();
+
+                    if (new Uri(clean1).Host == new Uri(url).Host)
+                    {
+                        OnNewUrlFound?.Invoke(clean1);
+                    }
+                }
+
                 UrlCrawledSuccess(url);
             }
             catch (PuppeteerSharp.NavigationException ex)
             {
                 Console.WriteLine($"Failed to navigate to {url}: {ex.Message}");
-                
-                
-                UrlCrawledFailed?.Invoke(url);
+                UrlCrawledFailed?.Invoke("Navigation: " + url);
             }
             catch (TimeoutException ex)
             {
                 Console.WriteLine($"Timeout when navigating to {url}: {ex.Message}");
-                UrlCrawledFailed?.Invoke(url);
+                UrlCrawledFailed?.Invoke("Timeout: " + url);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred when navigating to {url}: {ex.Message}");
-                UrlCrawledFailed?.Invoke(url);
+                UrlCrawledFailed?.Invoke("Error: " + url);
             }
         }
 
