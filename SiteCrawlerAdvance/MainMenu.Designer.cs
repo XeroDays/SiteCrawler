@@ -32,7 +32,7 @@
             btnStart = new Button();
             panel1 = new Panel();
             label1 = new Label();
-            numbericCount = new NumericUpDown();
+            numericGroupPages = new NumericUpDown();
             txtSuccess = new TextBox();
             txtFailed = new TextBox();
             txtUrls = new TextBox();
@@ -44,9 +44,12 @@
             lblTotalUrlFound = new Label();
             label3 = new Label();
             label2 = new Label();
+            label4 = new Label();
+            numericCrawlPages = new NumericUpDown();
             panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)numbericCount).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)numericGroupPages).BeginInit();
             panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)numericCrawlPages).BeginInit();
             SuspendLayout();
             // 
             // txtBaseUrl
@@ -79,8 +82,10 @@
             // panel1
             // 
             panel1.BorderStyle = BorderStyle.FixedSingle;
+            panel1.Controls.Add(label4);
+            panel1.Controls.Add(numericCrawlPages);
             panel1.Controls.Add(label1);
-            panel1.Controls.Add(numbericCount);
+            panel1.Controls.Add(numericGroupPages);
             panel1.ForeColor = Color.FromArgb(64, 64, 64);
             panel1.Location = new Point(14, 16);
             panel1.Margin = new Padding(3, 4, 3, 4);
@@ -99,13 +104,13 @@
             // 
             // numbericCount
             // 
-            numbericCount.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            numbericCount.Location = new Point(85, 8);
-            numbericCount.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
-            numbericCount.Name = "numbericCount";
-            numbericCount.Size = new Size(73, 27);
-            numbericCount.TabIndex = 0;
-            numbericCount.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            numericGroupPages.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            numericGroupPages.Location = new Point(85, 8);
+            numericGroupPages.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            numericGroupPages.Name = "numbericCount";
+            numericGroupPages.Size = new Size(73, 27);
+            numericGroupPages.TabIndex = 0;
+            numericGroupPages.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // txtSuccess
             // 
@@ -224,6 +229,25 @@
             label2.TabIndex = 2;
             label2.Text = "Status";
             // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(3, 44);
+            label4.Name = "label4";
+            label4.Size = new Size(88, 20);
+            label4.TabIndex = 3;
+            label4.Text = "Crawl Pages";
+            // 
+            // numericCrawlImages
+            // 
+            numericCrawlPages.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            numericCrawlPages.Location = new Point(97, 41);
+            numericCrawlPages.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            numericCrawlPages.Name = "numericCrawlImages";
+            numericCrawlPages.Size = new Size(61, 27);
+            numericCrawlPages.TabIndex = 2;
+            numericCrawlPages.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            // 
             // MainMenu
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -242,9 +266,10 @@
             Text = "MainMenu";
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)numbericCount).EndInit();
+            ((System.ComponentModel.ISupportInitialize)numericGroupPages).EndInit();
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)numericCrawlPages).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -255,7 +280,7 @@
         private Button btnStart;
         private Panel panel1;
         private Label label1;
-        private NumericUpDown numbericCount;
+        private NumericUpDown numericGroupPages;
         private TextBox txtSuccess;
         private TextBox txtFailed;
         private TextBox txtUrls;
@@ -267,5 +292,7 @@
         private Label label5;
         private Label lblTotalFailed;
         private Label label6;
+        private Label label4;
+        private NumericUpDown numericCrawlPages;
     }
 }

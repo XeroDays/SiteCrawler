@@ -22,12 +22,14 @@ namespace SiteCrawlerAdvance.Helpers
 
         private int NumberOfTabsPerSession;
 
+        private int CrawlPagesCount;
 
 
-        public void StartCrawling(List<string> urls, int numberOfTabsPerSession)
+        public void StartCrawling(List<string> urls, int numberOfTabsPerSession,int crawlPagesCount)
         {
             NumberOfTabsPerSession = numberOfTabsPerSession;
-
+            CrawlPagesCount = crawlPagesCount;
+            
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
 
             UrlsToComplete.AddRange(urls);
@@ -62,7 +64,15 @@ namespace SiteCrawlerAdvance.Helpers
             };
 
             pending.Add(browserCrawler);
-            var task = browserCrawler.OpenUrlsAsync(urls);
+
+            bool canCrawl = false;
+            if (CrawlPagesCount > 0)
+            {
+                canCrawl = true;
+                CrawlPagesCount--;
+            }
+
+            var task = browserCrawler.OpenUrlsAsync(urls,canCrawl);
             await Task.WhenAll(task);
             await browserCrawler.CloseBrowser();
             pending.Remove(browserCrawler);

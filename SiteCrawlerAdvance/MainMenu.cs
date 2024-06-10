@@ -16,7 +16,7 @@ namespace SiteCrawlerAdvance
         public MainMenu()
         {
             InitializeComponent();
-            numbericCount.Value = 5;
+            numericGroupPages.Value = 5;
         }
 
         List<string> urlsFound = new List<string>();
@@ -61,7 +61,7 @@ namespace SiteCrawlerAdvance
 
 
             List<string> urls = txtBaseUrl.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            helper.StartCrawling(urls, Convert.ToInt32(numbericCount.Value));
+            helper.StartCrawling(urls, Convert.ToInt32(numericGroupPages.Value), Convert.ToInt32(numericCrawlPages.Value));
         }
 
         void updateLogFile()

@@ -8,6 +8,6 @@ namespace SiteCrawlerAdvance
 {
     public class DataController
     {
-        public static int sno = 1; 
+        public static int sno = 1;  
     }
 }

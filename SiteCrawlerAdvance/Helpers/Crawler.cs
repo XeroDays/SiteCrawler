@@ -36,7 +36,7 @@ namespace SiteCrawlerAdvance
 
 
         private IBrowser browser;
-        public async Task OpenUrlsAsync(List<string> urls)
+        public async Task OpenUrlsAsync(List<string> urls,bool canCrawl)
         {
             // Download the Chromium revision if it does not already exist
             //var chromePath = @"C:\Users\Sayed\AppData\Local\Google\Chrome\Application\chrome.exe";
@@ -59,14 +59,14 @@ namespace SiteCrawlerAdvance
                 string log = (DataController.sno++) + ". " + url;
                 await Console.Out.WriteLineAsync(log);
                 UrlCrawledStarted(log);
-                tasks.Add(OpenPageAsync(browser, url));
+                tasks.Add(OpenPageAsync(browser, url, canCrawl));
             }
 
             await Task.WhenAll(tasks);
             await browser.CloseAsync(); 
         }
 
-        private async Task OpenPageAsync(IBrowser browser, string url)
+        private async Task OpenPageAsync(IBrowser browser, string url,bool canCrawl)
         {
             using var page = await browser.NewPageAsync();
             try
@@ -97,7 +97,14 @@ namespace SiteCrawlerAdvance
                     return;
                 }
 
-                await getUrlsFromPage(page,url);
+               if(canCrawl)
+                {
+                    await getUrlsFromPage(page, url); 
+                }
+                  
+                  
+
+              
                 UrlCrawledSuccess?.Invoke(url);
 
 
