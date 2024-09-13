@@ -6,6 +6,7 @@ The Site Crawler project is a Windows Forms application developed in C#. It auto
 
 
 ## Gallery
+ ![image](https://github.com/user-attachments/assets/e93c96ef-0c17-41d5-b3f3-4695ac3ce62e)
 
 ![image](https://github.com/user-attachments/assets/afedc9a1-44aa-4008-9c27-05fbb68a627f)
 
