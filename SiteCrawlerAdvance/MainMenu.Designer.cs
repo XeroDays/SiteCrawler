@@ -31,6 +31,8 @@
             txtBaseUrl = new TextBox();
             btnStart = new Button();
             panel1 = new Panel();
+            label4 = new Label();
+            numericCrawlPages = new NumericUpDown();
             label1 = new Label();
             numericGroupPages = new NumericUpDown();
             txtSuccess = new TextBox();
@@ -44,12 +46,10 @@
             lblTotalUrlFound = new Label();
             label3 = new Label();
             label2 = new Label();
-            label4 = new Label();
-            numericCrawlPages = new NumericUpDown();
             panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)numericCrawlPages).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericGroupPages).BeginInit();
             panel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)numericCrawlPages).BeginInit();
             SuspendLayout();
             // 
             // txtBaseUrl
@@ -61,7 +61,7 @@
             txtBaseUrl.Name = "txtBaseUrl";
             txtBaseUrl.Size = new Size(162, 223);
             txtBaseUrl.TabIndex = 0;
-            txtBaseUrl.Text = "https://beta.cbd.ae";
+            txtBaseUrl.Text = "https://www.cbd.ae";
             txtBaseUrl.TextChanged += txtBaseUrl_TextChanged;
             // 
             // btnStart
@@ -93,6 +93,25 @@
             panel1.Size = new Size(162, 133);
             panel1.TabIndex = 2;
             // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(3, 44);
+            label4.Name = "label4";
+            label4.Size = new Size(88, 20);
+            label4.TabIndex = 3;
+            label4.Text = "Crawl Pages";
+            // 
+            // numericCrawlPages
+            // 
+            numericCrawlPages.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            numericCrawlPages.Location = new Point(97, 41);
+            numericCrawlPages.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            numericCrawlPages.Name = "numericCrawlPages";
+            numericCrawlPages.Size = new Size(61, 27);
+            numericCrawlPages.TabIndex = 2;
+            numericCrawlPages.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            // 
             // label1
             // 
             label1.AutoSize = true;
@@ -102,12 +121,12 @@
             label1.TabIndex = 1;
             label1.Text = "Group Set";
             // 
-            // numbericCount
+            // numericGroupPages
             // 
             numericGroupPages.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             numericGroupPages.Location = new Point(85, 8);
             numericGroupPages.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
-            numericGroupPages.Name = "numbericCount";
+            numericGroupPages.Name = "numericGroupPages";
             numericGroupPages.Size = new Size(73, 27);
             numericGroupPages.TabIndex = 0;
             numericGroupPages.Value = new decimal(new int[] { 1, 0, 0, 0 });
@@ -115,7 +134,7 @@
             // txtSuccess
             // 
             txtSuccess.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            txtSuccess.Font = new Font("Segoe UI", 7.8F);
+            txtSuccess.Font = new Font("Segoe UI", 7.8F, FontStyle.Regular, GraphicsUnit.Point);
             txtSuccess.Location = new Point(182, 13);
             txtSuccess.Multiline = true;
             txtSuccess.Name = "txtSuccess";
@@ -125,7 +144,7 @@
             // txtFailed
             // 
             txtFailed.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            txtFailed.Font = new Font("Segoe UI", 7.8F);
+            txtFailed.Font = new Font("Segoe UI", 7.8F, FontStyle.Regular, GraphicsUnit.Point);
             txtFailed.ForeColor = Color.Red;
             txtFailed.Location = new Point(541, 13);
             txtFailed.Multiline = true;
@@ -136,7 +155,7 @@
             // txtUrls
             // 
             txtUrls.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            txtUrls.Font = new Font("Segoe UI", 7.8F);
+            txtUrls.Font = new Font("Segoe UI", 7.8F, FontStyle.Regular, GraphicsUnit.Point);
             txtUrls.ForeColor = Color.FromArgb(0, 192, 0);
             txtUrls.Location = new Point(861, 13);
             txtUrls.Multiline = true;
@@ -162,7 +181,7 @@
             // lblTotalFailed
             // 
             lblTotalFailed.AutoSize = true;
-            lblTotalFailed.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblTotalFailed.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             lblTotalFailed.Location = new Point(91, 83);
             lblTotalFailed.Name = "lblTotalFailed";
             lblTotalFailed.Size = new Size(18, 20);
@@ -172,7 +191,7 @@
             // label6
             // 
             label6.AutoSize = true;
-            label6.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label6.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
             label6.Location = new Point(1, 83);
             label6.Name = "label6";
             label6.Size = new Size(91, 20);
@@ -182,7 +201,7 @@
             // lblTotalSuccess
             // 
             lblTotalSuccess.AutoSize = true;
-            lblTotalSuccess.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblTotalSuccess.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             lblTotalSuccess.Location = new Point(103, 59);
             lblTotalSuccess.Name = "lblTotalSuccess";
             lblTotalSuccess.Size = new Size(18, 20);
@@ -192,7 +211,7 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label5.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
             label5.Location = new Point(1, 59);
             label5.Name = "label5";
             label5.Size = new Size(103, 20);
@@ -202,7 +221,7 @@
             // lblTotalUrlFound
             // 
             lblTotalUrlFound.AutoSize = true;
-            lblTotalUrlFound.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblTotalUrlFound.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             lblTotalUrlFound.Location = new Point(118, 36);
             lblTotalUrlFound.Name = "lblTotalUrlFound";
             lblTotalUrlFound.Size = new Size(18, 20);
@@ -212,7 +231,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label3.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
             label3.Location = new Point(-1, 36);
             label3.Name = "label3";
             label3.Size = new Size(122, 20);
@@ -222,31 +241,12 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             label2.Location = new Point(2, 3);
             label2.Name = "label2";
             label2.Size = new Size(53, 20);
             label2.TabIndex = 2;
             label2.Text = "Status";
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Location = new Point(3, 44);
-            label4.Name = "label4";
-            label4.Size = new Size(88, 20);
-            label4.TabIndex = 3;
-            label4.Text = "Crawl Pages";
-            // 
-            // numericCrawlImages
-            // 
-            numericCrawlPages.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            numericCrawlPages.Location = new Point(97, 41);
-            numericCrawlPages.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
-            numericCrawlPages.Name = "numericCrawlImages";
-            numericCrawlPages.Size = new Size(61, 27);
-            numericCrawlPages.TabIndex = 2;
-            numericCrawlPages.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // MainMenu
             // 
@@ -266,10 +266,10 @@
             Text = "MainMenu";
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)numericCrawlPages).EndInit();
             ((System.ComponentModel.ISupportInitialize)numericGroupPages).EndInit();
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)numericCrawlPages).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
