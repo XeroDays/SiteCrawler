@@ -4,6 +4,13 @@
 
 The Site Crawler project is a Windows Forms application developed in C#. It automates the process of opening multiple URLs in Chrome browser instances. The application allows users to input a list of URLs and a count to group them. Each group of URLs is opened in separate Chrome tabs, and once a page is completely loaded, the tab is closed automatically. Future enhancements will enable the crawler to find and open URLs from a base domain automatically.
 
+
+## Gallery
+ ![image](https://github.com/user-attachments/assets/e93c96ef-0c17-41d5-b3f3-4695ac3ce62e)
+
+![image](https://github.com/user-attachments/assets/afedc9a1-44aa-4008-9c27-05fbb68a627f)
+
+
 ## Features
 
 - **Group URLs**: Input a list of URLs and a count to group them. Each group is opened in separate Chrome tabs.

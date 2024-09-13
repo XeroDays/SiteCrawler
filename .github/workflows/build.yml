@@ -16,7 +16,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '8.0'
+        dotnet-version: '7.0'
 
     - name: Restore dependencies
       run: dotnet restore Siteoverloader.sln
@@ -30,7 +30,7 @@ jobs:
       
     - name: Create Zip Archive
       run: |
-        Compress-Archive -Path ./SiteCrawlerAdvance/bin/Release/net8.0-windows -DestinationPath SiteCrawler_Software.zip
+        Compress-Archive -Path ./SiteCrawlerAdvance/bin/Release/net7.0-windows7.0 -DestinationPath SiteCrawler_Software.zip
       if: success()
 
     - name: Publish Release Artifact
