@@ -1,77 +1,51 @@
-name: Release Workflow
+name: Create Release Pipeline
 
-on:
-  release:
-    types: [created]
+on:  
+ release:
+    types: [published]
+
+env:
+  PROJECT_NAME: Siteoverloader              # Change this to your project name
+  SOLUTION_FILE: ./Siteoverloader.sln       # Change this to your solution file path
+  BUILD_PATH: ./SiteCrawlerAdvance/bin/Release # Path where the build artifacts are stored
+  ZIP_NAME: Siteoverloader.zip              # Name of the zipped build folder
 
 jobs:
-  build:
-    name: Build Release
+  build-and-release:
+    name: Pipeline to Release
     runs-on: windows-latest
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '7.0'
-
-    - name: Restore dependencies
-      run: dotnet restore Siteoverloader.sln
-
-    - name: Build
-      run: dotnet build --configuration Release
-    
-    
-    - name: List Solution Directory
-      run: Get-ChildItem -Path . -Recurse
-      
-    - name: Create Zip Archive
-      run: |
-        Compress-Archive -Path ./SiteCrawlerAdvance/bin/Release/net7.0-windows7.0 -DestinationPath SiteCrawler_Software.zip
-      if: success()
-
-    - name: Publish Release Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: WinForms-Release
-        path: SiteCrawler_Software.zip
-
-  publish:
-    name: Publish Release to GitHub
-    needs: build
-    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: ⛓️ Checkout code
+        uses: actions/checkout@v3
 
-    - name: Download Release Artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: WinForms-Release
-        path: ./
+      - name: 🛠️ Setup .NET Framework
+        uses: microsoft/setup-msbuild@v1
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
+      - name: 📦 Restore NuGet packages
+        run: nuget restore
 
-    - name: Upload Release Asset
-      id: upload-release-asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./SiteCrawler_Software.zip
-        asset_name: SiteCrawler_Software.zip
-        asset_content_type: application/zip
+      - name: 🚀 Build the project
+        run: msbuild ${{ env.SOLUTION_FILE }} /p:Configuration=Release
+
+      - name: 🗜️ Zip the build folder
+        run: |
+          powershell Compress-Archive -Path ${{ env.BUILD_PATH }}\* -DestinationPath ${{ env.BUILD_PATH }}\${{ env.ZIP_NAME }}
+
+      - name: 📤 Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: ${{ env.BUILD_PATH }}/${{ env.ZIP_NAME }}
+
+      - name: ⬇️ Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+
+      - name: 🚀📤 Upload zip to GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.BUILD_PATH }}/${{ env.ZIP_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
