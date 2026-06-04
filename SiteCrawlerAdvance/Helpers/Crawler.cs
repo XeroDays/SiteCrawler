@@ -46,10 +46,10 @@ namespace SiteCrawlerAdvance
             // Launch a new browser instance
             browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
-                Headless = false, // Set to true if you don't want to see the browser window
+                Headless = false,
                 ExecutablePath = chromePath,
-                DefaultViewport = null, // Ensure the default viewport is null
-                Args = new[] { "--start-maximized" }
+                DefaultViewport = null,
+                Args = new[] { "--start-maximized", "--disable-blink-features=AutomationControlled" }
             });
 
             var tasks = new List<Task>();
@@ -63,32 +63,29 @@ namespace SiteCrawlerAdvance
             }
 
             await Task.WhenAll(tasks);
-            await browser.CloseAsync(); 
+        }
+
+        private static string NormalizeUrl(string url)
+        {
+            url = url.Trim();
+            if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                && !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                url = "https://" + url;
+            }
+            return url;
         }
 
         private async Task OpenPageAsync(IBrowser browser, string url,bool canCrawl)
         {
+            url = NormalizeUrl(url);
             using var page = await browser.NewPageAsync();
             try
             {
-                await page.SetRequestInterceptionAsync(true);
-
-                // Intercept requests and block scripts
-                page.Request += async (sender, e) =>
+                await page.GoToAsync(url, new NavigationOptions
                 {
-                    if (e.Request.ResourceType == ResourceType.Script)
-                    {
-                        await e.Request.AbortAsync();
-                    }
-                    else
-                    {
-                        await e.Request.ContinueAsync();
-                    }
-                };
-
-
-                await page.GoToAsync(url,new NavigationOptions { 
-                    Timeout = 30000 
+                    Timeout = 60000,
+                    WaitUntil = new[] { WaitUntilNavigation.DOMContentLoaded }
                 });
 
                 if (page.MainFrame == null)
@@ -112,7 +109,7 @@ namespace SiteCrawlerAdvance
             catch (PuppeteerSharp.NavigationException ex)
             {
                 Console.WriteLine($"Failed to navigate to {url}: {ex.Message}");
-                UrlCrawledFailed?.Invoke("Navigation: " + url);
+                UrlCrawledFailed?.Invoke($"Navigation: {url} ({ex.Message})");
             }
             catch (TimeoutException ex)
             {
@@ -166,7 +163,11 @@ namespace SiteCrawlerAdvance
 
         public async Task CloseBrowser()
         {
-            await browser.CloseAsync();
+            if (browser != null && browser.IsConnected)
+            {
+                await browser.CloseAsync();
+                browser = null!;
+            }
         }
     }
 }

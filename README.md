@@ -1,119 +1,115 @@
- 
-
-  # Site URL Inspection
+# Site Crawler
 
 ## Overview
 
-**Site URL Inspection** is a Windows Forms application developed in C# that helps inspect and validate website URLs. The application crawls websites, discovers internal URLs, and verifies the accessibility of each page. It is designed to identify broken, dead, invalid, or inaccessible URLs, helping developers and website administrators maintain healthy website structures and improve user experience.
+**Site Crawler** is a Windows desktop toolkit for working with large URL lists. It uses your locally installed **Google Chrome** to open pages in controlled batches, track which URLs load successfully, surface failures, and optionally discover additional links on the same website.
 
-The tool can process large sets of URLs, validate response statuses, and provide insights into broken links across a website.
+The repository includes two complementary applications:
 
- 
+- **Site Crawler Advance** — a Windows Forms app for interactive crawling, discovery, and live results.
+- **Site Overloader** — a console companion for opening many URLs from a prepared list file.
+
+Together they help developers and site owners explore site structure, warm or exercise many pages, and maintain awareness of which URLs are reachable during a session.
 
 ## Gallery
- ![image](https://github.com/user-attachments/assets/e93c96ef-0c17-41d5-b3f3-4695ac3ce62e)
+
+![image](https://github.com/user-attachments/assets/e93c96ef-0c17-41d5-b3f3-4695ac3ce62e)
 
 ![image](https://github.com/user-attachments/assets/afedc9a1-44aa-4008-9c27-05fbb68a627f)
 
+## Applications
+
+### Site Crawler Advance (Windows Forms)
+
+The main graphical application. Enter one or more seed URLs, configure how pages are grouped and how many crawl rounds should discover new links, then start the process. Chrome opens URLs in batches while the UI updates in real time.
+
+### Site Overloader (Console)
+
+A lightweight command-line tool that reads a `urls.txt` file from the working folder, splits the list into fixed-size groups, and opens each group in Chrome sequentially. Useful when you already have a URL list and only need batch loading without the full UI.
+
 ## Features
 
-* **Website Crawling**: Crawl websites and discover internal URLs automatically.
-* **URL Validation**: Check every discovered URL for accessibility and response status.
-* **Dead Link Detection**: Identify broken, dead, redirected, or invalid URLs.
-* **Batch Processing**: Process and validate multiple URLs efficiently.
-* **Website Health Monitoring**: Ensure all pages and links within a website are functioning correctly.
-* **Detailed Inspection Results**: Review URL validation results and identify pages that require attention.
-* **Future Enhancements**:
+### Site Crawler Advance
 
-  * Export inspection reports to CSV and Excel formats.
-  * Scheduled automated website inspections.
-  * Email notifications for broken links.
-  * Advanced filtering and reporting capabilities.
+- **Seed URL input** — Start from one or more base URLs entered in the application.
+- **Grouped batch opening** — Control how many URLs are opened together in each Chrome session (Group Set).
+- **Configurable link discovery** — Choose how many initial batches should crawl pages and collect new same-site links (Crawl Pages).
+- **Same-host link discovery** — Automatically finds internal links that belong to the same domain as the seed URL.
+- **Live result panels** — Separate views for successful loads, failures, and newly discovered URLs with running totals.
+- **Queue-based crawling** — Discovered URLs are added to the work queue and processed until the queue is exhausted.
+- **Persistent URL log** — Discovered URLs are saved to `urls.txt` in the application directory as crawling progresses.
+- **Failure visibility** — Navigation errors, timeouts, and other load problems are recorded in the failed URLs panel.
 
-## Installation
+### Site Overloader
 
-To get started with the Site URL Inspection project, follow these steps:
+- **File-driven URL lists** — Loads URLs from `urls.txt` (one URL per line).
+- **Automatic chunking** — Splits long lists into manageable batches for sequential processing.
+- **Batch page opening** — Opens each batch in Chrome before moving to the next group.
 
-1. **Clone the repository**:
+### Shared
 
-   ```bash
-   git clone https://github.com/XeroDays/SiteCrawler.git
-   cd site-crawler
-   ```
+- **Local Chrome integration** — Uses your installed Google Chrome browser (no separate remote service).
+- **Graceful shutdown** — Open browser sessions are closed when the application exits.
 
-2. **Open the project in Visual Studio**:
+### Planned enhancements
 
-   Open the `SiteCrawler.sln` file in Visual Studio.
+- Export inspection or crawl results to CSV and Excel.
+- Scheduled automated runs.
+- Email notifications for broken or failed URLs.
+- Advanced filtering and reporting.
 
-3. **Install dependencies**:
+## Workflows
 
-   Ensure you have the necessary NuGet packages installed. The key dependencies include:
+### Interactive crawl (Site Crawler Advance)
 
-   * Selenium.WebDriver
-   * Selenium.WebDriver.ChromeDriver
-   * Selenium.Support
+1. Launch **Site Crawler Advance**.
+2. Enter seed URL(s) in the base URL field (one per line).
+3. Set **Group Set** — how many URLs open per Chrome batch.
+4. Set **Crawl Pages** — how many batches should discover new links from loaded pages.
+5. Click **Initiate** to start.
+6. Watch the three result areas update: successful loads, failures, and discovered URLs.
+7. Review or reuse the generated `urls.txt` for discovered links.
 
-4. **Install ChromeDriver**:
+### Batch URL loading (Site Overloader)
 
-   Download ChromeDriver from the official site and ensure it is available in your system's PATH or placed within the project directory.
+1. Create or update `urls.txt` with one URL per line in the application folder.
+2. Run the **Site Overloader** console application.
+3. The tool reads the file, processes URLs in fixed-size chunks, and opens each chunk in Chrome until the full list is handled.
 
-## Usage
+## Requirements
 
-### Inspect a Website
+- Windows
+- [.NET](https://dotnet.microsoft.com/download) (7.0 for Site Crawler Advance; 8.0 for Site Overloader)
+- [Google Chrome](https://www.google.com/chrome/) installed locally
+- Visual Studio (recommended for building and running from source)
 
-1. Launch the application.
-2. Enter the website URL you want to inspect.
-3. Configure crawling and inspection settings as needed.
-4. Start the inspection process.
-5. Review the results to identify:
+## Getting started
 
-   * Broken URLs (404 errors)
-   * Unreachable pages
-   * Redirected URLs
-   * Invalid links
-   * Other HTTP response issues
+1. Clone this repository.
+2. Open `Siteoverloader.sln` in Visual Studio (builds Site Crawler Advance).
+3. Restore NuGet packages and build the solution.
+4. Run **Site Crawler Advance** from Visual Studio, or build and run **Site Overloader** separately from its project folder with a prepared `urls.txt`.
 
-### Inspection Workflow
-
-1. **Enter Website URL**: Provide the starting URL or domain.
-2. **Start Crawling**: The application crawls the website and discovers internal links.
-3. **Validate URLs**: Each discovered URL is checked for availability and response status.
-4. **Analyze Results**: Review detected issues and fix broken or problematic links.
+Release builds of Site Crawler Advance can be produced via GitHub Releases (automated build workflow).
 
 ## Contributing
 
-We welcome contributions to enhance the Site URL Inspection project.
+Contributions are welcome.
 
 1. Fork the repository.
-
-2. Create a feature branch:
-
-   ```bash
-   git checkout -b feature-branch
-   ```
-
-3. Commit your changes:
-
-   ```bash
-   git commit -m "Add new feature"
-   ```
-
-4. Push to your branch:
-
-   ```bash
-   git push origin feature-branch
-   ```
-
+2. Create a feature branch.
+3. Make your changes and commit them.
+4. Push to your branch.
 5. Open a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.txt) file for details.
 
 ## Contact
 
-For any questions, suggestions, or bug reports, please open an issue in the GitHub repository or contact the project maintainer.
+For questions, suggestions, or bug reports, open an issue in the [GitHub repository](https://github.com/XeroDays/SiteCrawler/issues) or contact the project maintainer.
 
 ---
 
-Thank you for using **Site URL Inspection**. Your feedback and contributions help improve the project and make website maintenance easier for everyone.
+Thank you for using **Site Crawler**. Feedback and contributions are appreciated.

@@ -15,6 +15,7 @@ namespace SiteCrawlerAdvance.Helpers
         public event UrlCrawledEventHandler UrlCrawledSuccess;
         public event UrlCrawledEventHandler UrlCrawledFailed;
         public event UrlCrawledEventHandler OnNewUrlFound;
+        public event EventHandler? CrawlCompleted;
 
         List<string> UrlsToComplete = new List<string>();
         List<string> UrlsDone = new List<string>();
@@ -49,6 +50,8 @@ namespace SiteCrawlerAdvance.Helpers
 
             browserCrawler.UrlCrawledSuccess += (url) =>
             {
+                if (!UrlsDone.Contains(url))
+                    UrlsDone.Add(url);
                 UrlCrawledSuccess?.Invoke(url);
             };
 
@@ -103,6 +106,10 @@ namespace SiteCrawlerAdvance.Helpers
                 }
                  
                 InitiateBunch(urlsCheck);
+            }
+            else if (pending.Count == 0)
+            {
+                CrawlCompleted?.Invoke(this, EventArgs.Empty);
             }
         }
 
