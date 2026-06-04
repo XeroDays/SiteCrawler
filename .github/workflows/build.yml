@@ -5,10 +5,10 @@ on:
     types: [published]
 
 env:
-  PROJECT_NAME: Siteoverloader              # Change this to your project name
-  SOLUTION_FILE: ./Siteoverloader.sln       # Change this to your solution file path
-  BUILD_PATH: ./SiteCrawlerAdvance/bin/Release # Path where the build artifacts are stored
-  ZIP_NAME: Siteoverloader.zip              # Name of the zipped build folder
+  PROJECT_NAME: SiteCrawlerAdvance
+  SOLUTION_FILE: ./Siteoverloader.sln
+  BUILD_PATH: ./SiteCrawlerAdvance/bin/Release
+  ZIP_NAME: SiteCrawlerAdvance.zip
 
 jobs:
   build-and-release:
