@@ -46,6 +46,9 @@
             lblTotalUrlFound = new Label();
             label3 = new Label();
             label2 = new Label();
+            label7 = new Label();
+            label8 = new Label();
+            label9 = new Label();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numericCrawlPages).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericGroupPages).BeginInit();
@@ -135,32 +138,33 @@
             // 
             txtSuccess.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             txtSuccess.Font = new Font("Segoe UI", 7.8F);
-            txtSuccess.Location = new Point(182, 13);
+            txtSuccess.ForeColor = Color.Green;
+            txtSuccess.Location = new Point(1007, 34);
             txtSuccess.Multiline = true;
             txtSuccess.Name = "txtSuccess";
-            txtSuccess.Size = new Size(351, 623);
+            txtSuccess.Size = new Size(614, 766);
             txtSuccess.TabIndex = 3;
             // 
             // txtFailed
             // 
-            txtFailed.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            txtFailed.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             txtFailed.Font = new Font("Segoe UI", 7.8F);
             txtFailed.ForeColor = Color.Red;
-            txtFailed.Location = new Point(541, 13);
+            txtFailed.Location = new Point(688, 34);
             txtFailed.Multiline = true;
             txtFailed.Name = "txtFailed";
-            txtFailed.Size = new Size(313, 623);
+            txtFailed.Size = new Size(313, 766);
             txtFailed.TabIndex = 4;
             // 
             // txtUrls
             // 
-            txtUrls.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            txtUrls.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             txtUrls.Font = new Font("Segoe UI", 7.8F);
-            txtUrls.ForeColor = Color.FromArgb(0, 192, 0);
-            txtUrls.Location = new Point(861, 13);
+            txtUrls.ForeColor = Color.FromArgb(64, 64, 64);
+            txtUrls.Location = new Point(182, 34);
             txtUrls.Multiline = true;
             txtUrls.Name = "txtUrls";
-            txtUrls.Size = new Size(503, 623);
+            txtUrls.Size = new Size(500, 766);
             txtUrls.TabIndex = 5;
             // 
             // panel2
@@ -248,11 +252,45 @@
             label2.TabIndex = 2;
             label2.Text = "Status";
             // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Location = new Point(182, 9);
+            label7.Name = "label7";
+            label7.Size = new Size(86, 20);
+            label7.TabIndex = 7;
+            label7.Text = "URLs Found";
+            // 
+            // label8
+            // 
+            label8.AutoSize = true;
+            label8.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label8.ForeColor = Color.Red;
+            label8.Location = new Point(688, 11);
+            label8.Name = "label8";
+            label8.Size = new Size(90, 20);
+            label8.TabIndex = 8;
+            label8.Text = "URLs Failed";
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label9.ForeColor = Color.FromArgb(0, 192, 0);
+            label9.Location = new Point(1007, 11);
+            label9.Name = "label9";
+            label9.Size = new Size(101, 20);
+            label9.TabIndex = 9;
+            label9.Text = "URLs 200 OK";
+            // 
             // MainMenu
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1370, 645);
+            ClientSize = new Size(1633, 806);
+            Controls.Add(label9);
+            Controls.Add(label8);
+            Controls.Add(label7);
             Controls.Add(panel2);
             Controls.Add(txtUrls);
             Controls.Add(txtFailed);
@@ -294,5 +332,8 @@
         private Label label6;
         private Label label4;
         private NumericUpDown numericCrawlPages;
+        private Label label7;
+        private Label label8;
+        private Label label9;
     }
 }

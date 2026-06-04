@@ -96,7 +96,30 @@ namespace SiteCrawlerAdvance
 
                if(canCrawl)
                 {
-                    await getUrlsFromPage(page, url); 
+                    try
+                    {
+                        await page.WaitForFunctionAsync(
+                            @"() => {
+                                const navbarPlaceholder = document.getElementById('navbar-placeholder');
+                                const footerPlaceholder = document.getElementById('footer-placeholder');
+                                if (!navbarPlaceholder && !footerPlaceholder) return true;
+
+                                const dropdownLinks = document.querySelectorAll('ul.dropdown-menu li a[href], ul li a.dropdown-item[href]').length;
+                                const footerLinks = document.querySelectorAll('#footer-placeholder a[href]').length;
+                                const navLinks = document.querySelectorAll('#navbar-placeholder a[href]').length;
+
+                                if (navbarPlaceholder && (dropdownLinks > 0 || navLinks > 5)) return true;
+                                if (footerPlaceholder && footerLinks > 0) return true;
+                                return false;
+                            }",
+                            new WaitForFunctionOptions { Timeout = 15000 });
+                    }
+                    catch (WaitTaskTimeoutException)
+                    {
+                        // Proceed with whatever links exist (static pages still work)
+                    }
+
+                    await getUrlsFromPage(page, url);
                 }
                   
                   
@@ -128,11 +151,24 @@ namespace SiteCrawlerAdvance
         {
             // Extract all URLs from the page
             var newurls = await page.EvaluateExpressionAsync<string[]>(@"
-                Array.from(document.querySelectorAll('a'))
-                    .map(anchor => anchor.getAttribute('href') || '')
-                    .filter(href => href && !/^(mailto:|tel:|javascript:|data:|#)/i.test(href.trim()))
-                    .map(href => new URL(href, document.baseURI).href)
-                    .filter(href => /^https?:\/\//i.test(href))
+                (() => {
+                    const base = window.location.href;
+                    const skip = h => !h || /^(mailto:|tel:|javascript:|data:|#)$/i.test(h.trim());
+                    const seen = new Set();
+                    const out = [];
+                    for (const a of document.querySelectorAll('a[href], ul li a[href]')) {
+                        const href = (a.getAttribute('href') || '').trim();
+                        if (skip(href)) continue;
+                        try {
+                            const abs = new URL(href, base).href;
+                            if (/^https?:\/\//i.test(abs) && !seen.has(abs)) {
+                                seen.add(abs);
+                                out.push(abs);
+                            }
+                        } catch (_) {}
+                    }
+                    return out;
+                })()
             ");
 
             // Print the extracted URLs
