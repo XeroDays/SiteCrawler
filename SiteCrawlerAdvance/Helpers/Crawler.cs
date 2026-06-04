@@ -129,13 +129,20 @@ namespace SiteCrawlerAdvance
             // Extract all URLs from the page
             var newurls = await page.EvaluateExpressionAsync<string[]>(@"
                 Array.from(document.querySelectorAll('a'))
-                    .map(anchor => anchor.href)
-                    .filter(href => href)
+                    .map(anchor => anchor.getAttribute('href') || '')
+                    .filter(href => href && !/^(mailto:|tel:|javascript:|data:|#)/i.test(href.trim()))
+                    .map(href => new URL(href, document.baseURI).href)
+                    .filter(href => /^https?:\/\//i.test(href))
             ");
 
             // Print the extracted URLs
             foreach (string urll in newurls)
             {
+                if (urll.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
                 string clean1 = urll.Split('?').ToList().First();
                 clean1 = Uri.UnescapeDataString(clean1);
                 clean1 = clean1.Split("/#").ToList().First();
@@ -146,6 +153,11 @@ namespace SiteCrawlerAdvance
                     clean1 = clean1.Substring(0, clean1.Length - 1);
                 }
 
+                if (clean1.Contains("mailto:", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
 
                 //check if the url neding is pdf
                 if (clean1.EndsWith(".pdf"))
@@ -153,7 +165,13 @@ namespace SiteCrawlerAdvance
                     continue;
                 }
 
-                if (new Uri(clean1).Host == new Uri(url).Host)
+                if (!Uri.TryCreate(clean1, UriKind.Absolute, out var parsedUrl)
+                    || (parsedUrl.Scheme != Uri.UriSchemeHttp && parsedUrl.Scheme != Uri.UriSchemeHttps))
+                {
+                    continue;
+                }
+
+                if (parsedUrl.Host == new Uri(url).Host)
                 {
                     OnNewUrlFound?.Invoke(clean1);
                 }

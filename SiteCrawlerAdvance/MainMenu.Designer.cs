@@ -61,7 +61,7 @@
             txtBaseUrl.Name = "txtBaseUrl";
             txtBaseUrl.Size = new Size(162, 223);
             txtBaseUrl.TabIndex = 0;
-            txtBaseUrl.Text = "https://www.cbd.ae";
+            txtBaseUrl.Text = "https://softasium.com";
             txtBaseUrl.TextChanged += txtBaseUrl_TextChanged;
             // 
             // btnStart
@@ -134,7 +134,7 @@
             // txtSuccess
             // 
             txtSuccess.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            txtSuccess.Font = new Font("Segoe UI", 7.8F, FontStyle.Regular, GraphicsUnit.Point);
+            txtSuccess.Font = new Font("Segoe UI", 7.8F);
             txtSuccess.Location = new Point(182, 13);
             txtSuccess.Multiline = true;
             txtSuccess.Name = "txtSuccess";
@@ -144,7 +144,7 @@
             // txtFailed
             // 
             txtFailed.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            txtFailed.Font = new Font("Segoe UI", 7.8F, FontStyle.Regular, GraphicsUnit.Point);
+            txtFailed.Font = new Font("Segoe UI", 7.8F);
             txtFailed.ForeColor = Color.Red;
             txtFailed.Location = new Point(541, 13);
             txtFailed.Multiline = true;
@@ -155,7 +155,7 @@
             // txtUrls
             // 
             txtUrls.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            txtUrls.Font = new Font("Segoe UI", 7.8F, FontStyle.Regular, GraphicsUnit.Point);
+            txtUrls.Font = new Font("Segoe UI", 7.8F);
             txtUrls.ForeColor = Color.FromArgb(0, 192, 0);
             txtUrls.Location = new Point(861, 13);
             txtUrls.Multiline = true;
@@ -181,7 +181,7 @@
             // lblTotalFailed
             // 
             lblTotalFailed.AutoSize = true;
-            lblTotalFailed.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            lblTotalFailed.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             lblTotalFailed.Location = new Point(91, 83);
             lblTotalFailed.Name = "lblTotalFailed";
             lblTotalFailed.Size = new Size(18, 20);
@@ -191,7 +191,7 @@
             // label6
             // 
             label6.AutoSize = true;
-            label6.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            label6.Font = new Font("Segoe UI", 9F);
             label6.Location = new Point(1, 83);
             label6.Name = "label6";
             label6.Size = new Size(91, 20);
@@ -201,7 +201,7 @@
             // lblTotalSuccess
             // 
             lblTotalSuccess.AutoSize = true;
-            lblTotalSuccess.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            lblTotalSuccess.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             lblTotalSuccess.Location = new Point(103, 59);
             lblTotalSuccess.Name = "lblTotalSuccess";
             lblTotalSuccess.Size = new Size(18, 20);
@@ -211,7 +211,7 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            label5.Font = new Font("Segoe UI", 9F);
             label5.Location = new Point(1, 59);
             label5.Name = "label5";
             label5.Size = new Size(103, 20);
@@ -221,7 +221,7 @@
             // lblTotalUrlFound
             // 
             lblTotalUrlFound.AutoSize = true;
-            lblTotalUrlFound.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            lblTotalUrlFound.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             lblTotalUrlFound.Location = new Point(118, 36);
             lblTotalUrlFound.Name = "lblTotalUrlFound";
             lblTotalUrlFound.Size = new Size(18, 20);
@@ -231,7 +231,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            label3.Font = new Font("Segoe UI", 9F);
             label3.Location = new Point(-1, 36);
             label3.Name = "label3";
             label3.Size = new Size(122, 20);
@@ -241,7 +241,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             label2.Location = new Point(2, 3);
             label2.Name = "label2";
             label2.Size = new Size(53, 20);
