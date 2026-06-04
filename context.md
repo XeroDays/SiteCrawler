@@ -48,7 +48,8 @@
 - **No service/repository/API layers** — flat helper classes; static `DataController.sno` for console serial logging.
 - **Events:** `UrlCrawledStarted`, `UrlCrawledSuccess`, `UrlCrawledFailed`, `OnNewUrlFound`, `CrawlCompleted` — UI subscribes to all except `UrlCrawledStarted`.
 - **Chrome path:** `GetChromePath()` probes standard Windows install paths; throws if missing.
-- **Same-host crawl:** host match after normalize; query/hash stripped; `.pdf` skipped; bare hosts get `https://` prefix.
+- **Same-host crawl:** host match after normalize; query/hash stripped; `.pdf` skipped; non-http(s) skipped (`mailto:`, `tel:`, `javascript:`, `data:`); bare seed hosts get `https://` prefix via `NormalizeUrl` only at navigation — relative hrefs resolved to absolute in JS during discovery.
+- **Dynamic DOM:** before link scrape, `WaitForFunctionAsync` (15s, non-fatal timeout) waits for async `#navbar-placeholder` / `#footer-placeholder` injection (dropdown items, nav link count, or footer links); static pages without placeholders proceed immediately.
 - **Process exit:** `AppDomain.ProcessExit` closes pending browser instances in `CrawlController`.
 - **Headless:** `false` (visible Chrome).
 
@@ -127,7 +128,7 @@ CSV/Excel export, scheduled runs, email alerts for failures, advanced filtering/
 **Trigger:** `CrawlPagesCount > 0` for batch (`canCrawl` true; decremented once per batch).
 
 **Flow:**
-`DOMContentLoaded` → `getUrlsFromPage` (JS `querySelectorAll('a')`) → normalize → skip PDF → same host → `OnNewUrlFound` → enqueue `UrlsToComplete` → UI + log
+`DOMContentLoaded` → optional `WaitForFunctionAsync` (dynamic nav/footer) → `getUrlsFromPage` (JS `a[href]` + `ul li a[href]`, dedupe, skip non-navigable schemes, relative→absolute via page URL) → C# clean (query/hash, PDF, http(s) only, mailto guard) → same host → `OnNewUrlFound` → enqueue `UrlsToComplete` → UI + log
 
 **Files:**
 - `SiteCrawlerAdvance/Helpers/Crawler.cs`
@@ -168,7 +169,7 @@ CSV/Excel export, scheduled runs, email alerts for failures, advanced filtering/
 | Main UI, URL lists, log, UI thread marshaling | `SiteCrawlerAdvance/MainMenu.cs` |
 | UI layout & controls | `SiteCrawlerAdvance/MainMenu.Designer.cs` |
 | Crawl queue, batching, crawl budget, completion | `SiteCrawlerAdvance/Helpers/CrawlController.cs` |
-| Puppeteer crawl, normalize, link extract | `SiteCrawlerAdvance/Helpers/Crawler.cs` |
+| Puppeteer crawl, normalize, dynamic nav wait, link extract | `SiteCrawlerAdvance/Helpers/Crawler.cs` |
 | Console serial counter | `SiteCrawlerAdvance/Helpers/DataController.cs` |
 | CI release build | `.github/workflows/build.yml` |
 | Solution | `Siteoverloader.sln` |
@@ -181,7 +182,7 @@ CSV/Excel export, scheduled runs, email alerts for failures, advanced filtering/
 ```
 MainMenu (seed URLs, numericGroupPages, numericCrawlPages)
   → CrawlController (queue, dedupe, Except UrlsDone, batch size)
-    → Crawler (Chrome/Puppeteer, tabs, DOMContentLoaded nav, link scrape)
+    → Crawler (Chrome/Puppeteer, tabs, DOMContentLoaded nav, dynamic nav wait, link scrape)
       → Events → MainMenu (txtSuccess / txtFailed / txtUrls, labels)
       → urls.txt (numbered discovered URLs)
 ```
@@ -206,7 +207,7 @@ MainMenu (seed URLs, numericGroupPages, numericCrawlPages)
 
 | Field | Detail |
 |-------|--------|
-| Purpose | Control Chrome: tabs, navigation, JS evaluate |
+| Purpose | Control Chrome: tabs, navigation, JS evaluate, `WaitForFunctionAsync` for dynamic DOM |
 | Files | `Crawler.cs`, `SiteCrawlerAdvance.csproj` |
 | Auth | N/A |
 
@@ -233,7 +234,7 @@ MainMenu (seed URLs, numericGroupPages, numericCrawlPages)
 |--------|----------------------|------------|
 | Main UI | `MainMenu.cs`, `MainMenu.Designer.cs` | Start/stop UX, panels, counters, log format, control defaults |
 | Crawl orchestration | `CrawlController.cs` | Queue order, batch size, crawl depth, completion signal |
-| Browser crawl | `Crawler.cs` | Navigation, timeouts, URL normalize, discovery rules, Chrome args |
+| Browser crawl | `Crawler.cs` | Navigation, timeouts, dynamic nav wait, URL normalize (navigation), discovery filters, relative URL resolution, Chrome args |
 | Chrome resolution | `GetChromePath()` in `Crawler.cs` | App fails launch if paths wrong |
 | Constants | `DataController.cs` | Console log numbering |
 | Build/release | `build.yml`, `SiteCrawlerAdvance.csproj` | CI artifact path, TFM, package versions |
@@ -248,11 +249,14 @@ MainMenu (seed URLs, numericGroupPages, numericCrawlPages)
 - **Event pattern:** `delegate` + `event` for URL lifecycle; `CrawlCompleted` uses `EventHandler`
 - **UI thread:** `RunOnUiThread` / `BeginInvoke` for event handlers updating controls
 - **URL normalization (UI lists):** `Uri.UnescapeDataString`, distinct, sort
-- **URL normalization (crawl):** trim, optional `https://`, strip query/`#`, trailing `/`, PDF skip, same host
+- **URL normalization (navigation):** `NormalizeUrl` in `OpenPageAsync` — trim, prepend `https://` if no scheme; does not resolve relative paths
+- **URL normalization (discovery):** JS resolves relative hrefs to absolute; C# strips query/`#`, trailing `/`, skips PDF, http(s) only, same host
+- **Skipped link schemes:** `mailto:`, `tel:`, `javascript:`, `data:`, bare `#` (JS + C# mailto guard)
+- **Link selectors:** `a[href]`, `ul li a[href]` (includes nested nav dropdown items once DOM injected)
 - **UI labels:** Group Set → `numericGroupPages` (default 5 in ctor); Crawl Pages → `numericCrawlPages` (designer default 1)
 - **Button text:** `Intiate` (typo in designer)
 - **Failure prefixes:** `Navigation:`, `Timeout:`, `Error:` on failed URL strings
-- **Navigation timeout:** 60s; waits `DOMContentLoaded`
+- **Navigation timeout:** 60s; waits `DOMContentLoaded`; link scrape may wait up to 15s for dynamic nav/footer
 - **Static serial:** `DataController.sno` per console log line
 - **urls.txt:** overwrites full discovered list on each new URL
 - **README:** user docs; code uses PuppeteerSharp (not Selenium)

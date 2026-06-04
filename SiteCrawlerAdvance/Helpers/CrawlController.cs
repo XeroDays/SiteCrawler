@@ -75,11 +75,28 @@ namespace SiteCrawlerAdvance.Helpers
                 CrawlPagesCount--;
             }
 
-            var task = browserCrawler.OpenUrlsAsync(urls,canCrawl);
-            await Task.WhenAll(task);
-            await browserCrawler.CloseBrowser();
-            pending.Remove(browserCrawler);
-            ReTrigger();
+            try
+            {
+                await browserCrawler.OpenUrlsAsync(urls, canCrawl);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Crawl batch failed: {ex.Message}");
+            }
+            finally
+            {
+                try
+                {
+                    await browserCrawler.CloseBrowser();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to close browser: {ex.Message}");
+                }
+
+                pending.Remove(browserCrawler);
+                ReTrigger();
+            }
         }
 
 

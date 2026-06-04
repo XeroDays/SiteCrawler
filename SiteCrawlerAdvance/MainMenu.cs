@@ -31,57 +31,77 @@ namespace SiteCrawlerAdvance
                 action();
         }
 
+        private void SetStartButtonEnabled(bool enabled)
+        {
+            RunOnUiThread(() => btnStart.Enabled = enabled);
+        }
+
         private void btnStart_Click(object sender, EventArgs e)
         {
+            if (!btnStart.Enabled)
+                return;
+
+            List<string> urls = txtBaseUrl.Text
+                .Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                .ToList();
+
+            if (urls.Count == 0)
+                return;
+
             btnStart.Enabled = false;
-            CrawlController helper = new CrawlController();
-            helper.UrlCrawledSuccess += (url) =>
+
+            try
             {
-                url = Uri.UnescapeDataString(url);
-                RunOnUiThread(() =>
+                CrawlController helper = new CrawlController();
+                helper.UrlCrawledSuccess += (url) =>
                 {
-                    urlSucceed.Add(url);
-                    urlSucceed = urlSucceed.Distinct().ToList();
-                    urlSucceed.Sort();
-                    lblTotalSuccess.Text = urlSucceed.Count.ToString();
-                    txtSuccess.Text = string.Join(Environment.NewLine, urlSucceed);
-                });
-            };
+                    url = Uri.UnescapeDataString(url);
+                    RunOnUiThread(() =>
+                    {
+                        urlSucceed.Add(url);
+                        urlSucceed = urlSucceed.Distinct().ToList();
+                        urlSucceed.Sort();
+                        lblTotalSuccess.Text = urlSucceed.Count.ToString();
+                        txtSuccess.Text = string.Join(Environment.NewLine, urlSucceed);
+                    });
+                };
 
-            helper.UrlCrawledFailed += (url) =>
+                helper.UrlCrawledFailed += (url) =>
+                {
+                    url = Uri.UnescapeDataString(url);
+                    RunOnUiThread(() =>
+                    {
+                        urlsFailed.Add(url);
+                        urlsFailed = urlsFailed.Distinct().ToList();
+                        urlsFailed.Sort();
+                        lblTotalFailed.Text = urlsFailed.Count.ToString();
+                        txtFailed.Text = string.Join(Environment.NewLine, urlsFailed);
+                    });
+                };
+
+                helper.OnNewUrlFound += (url) =>
+                {
+                    url = Uri.UnescapeDataString(url);
+                    RunOnUiThread(() =>
+                    {
+                        urlsFound.Add(url);
+                        urlsFound = urlsFound.Distinct().ToList();
+                        urlsFound.Sort();
+                        lblTotalUrlFound.Text = urlsFound.Count.ToString();
+                        txtUrls.Text = string.Join(Environment.NewLine, urlsFound);
+                        updateLogFile();
+                    });
+                };
+
+                helper.CrawlCompleted += (_, _) => SetStartButtonEnabled(true);
+
+                helper.StartCrawling(urls, Convert.ToInt32(numericGroupPages.Value), Convert.ToInt32(numericCrawlPages.Value));
+            }
+            catch (Exception ex)
             {
-                url = Uri.UnescapeDataString(url);
-                RunOnUiThread(() =>
-                {
-                    urlsFailed.Add(url);
-                    urlsFailed = urlsFailed.Distinct().ToList();
-                    urlsFailed.Sort();
-                    lblTotalFailed.Text = urlsFailed.Count.ToString();
-                    txtFailed.Text = string.Join(Environment.NewLine, urlsFailed);
-                });
-            };
-
-            helper.OnNewUrlFound += (url) =>
-            {
-                url = Uri.UnescapeDataString(url);
-                RunOnUiThread(() =>
-                {
-                    urlsFound.Add(url);
-                    urlsFound = urlsFound.Distinct().ToList();
-                    urlsFound.Sort();
-                    lblTotalUrlFound.Text = urlsFound.Count.ToString();
-                    txtUrls.Text = string.Join(Environment.NewLine, urlsFound);
-                    updateLogFile();
-                });
-            };
-
-            //take all  the urls from txturls and remove duplicates and again set to txturls
-
-
-            helper.CrawlCompleted += (_, _) => RunOnUiThread(() => btnStart.Enabled = true);
-
-            List<string> urls = txtBaseUrl.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            helper.StartCrawling(urls, Convert.ToInt32(numericGroupPages.Value), Convert.ToInt32(numericCrawlPages.Value));
+                Console.WriteLine($"Failed to start crawl: {ex.Message}");
+                SetStartButtonEnabled(true);
+            }
         }
 
         void updateLogFile()
