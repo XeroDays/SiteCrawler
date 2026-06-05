@@ -1,5 +1,5 @@
-﻿
-using PuppeteerSharp;
+﻿using PuppeteerSharp;
+using System.Diagnostics;
 
 namespace SiteCrawlerAdvance
 {
@@ -35,31 +35,48 @@ namespace SiteCrawlerAdvance
         }
 
 
-        private IBrowser browser;
+        private IBrowser? browser;
+        private string? userDataDir;
+        private Process? browserProcess;
+
         public async Task OpenUrlsAsync(List<string> urls,bool canCrawl)
         {
-            // Download the Chromium revision if it does not already exist
-            //var chromePath = @"C:\Users\Sayed\AppData\Local\Google\Chrome\Application\chrome.exe";
-            string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            string chromePath = GetChromePath();
+            if (urls.Count == 0)
+                return;
 
-            // Launch a new browser instance
+            string chromePath = GetChromePath();
+            userDataDir = Path.Combine(Path.GetTempPath(), "SiteCrawler_" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(userDataDir);
+
             browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
                 Headless = false,
                 ExecutablePath = chromePath,
+                UserDataDir = userDataDir,
                 DefaultViewport = null,
-                Args = new[] { "--start-maximized", "--disable-blink-features=AutomationControlled" }
+                IgnoredDefaultArgs = new[] { "--enable-automation" },
+                Args = new[]
+                {
+                    "--start-maximized",
+                    "--disable-blink-features=AutomationControlled",
+                    "--no-first-run",
+                    "--no-default-browser-check",
+                    "--disable-infobars"
+                }
             });
 
+            browserProcess = browser.Process;
+
+            var startupPage = (await browser.PagesAsync()).FirstOrDefault();
             var tasks = new List<Task>();
 
-            foreach (var url in urls)
+            for (int i = 0; i < urls.Count; i++)
             {
+                string url = urls[i];
                 string log = (DataController.sno++) + ". " + url;
                 await Console.Out.WriteLineAsync(log);
                 UrlCrawledStarted(log);
-                tasks.Add(OpenPageAsync(browser, url, canCrawl));
+                tasks.Add(OpenPageAsync(url, canCrawl, i == 0 ? startupPage : null));
             }
 
             await Task.WhenAll(tasks);
@@ -76,10 +93,15 @@ namespace SiteCrawlerAdvance
             return url;
         }
 
-        private async Task OpenPageAsync(IBrowser browser, string url,bool canCrawl)
+        private async Task OpenPageAsync(string url, bool canCrawl, IPage? reusePage)
         {
+            if (browser == null)
+                return;
+
             url = NormalizeUrl(url);
-            using var page = await browser.NewPageAsync();
+            var page = reusePage ?? await browser.NewPageAsync();
+            var closePageWhenDone = reusePage == null;
+
             try
             {
                 await page.GoToAsync(url, new NavigationOptions
@@ -121,13 +143,8 @@ namespace SiteCrawlerAdvance
 
                     await getUrlsFromPage(page, url);
                 }
-                  
-                  
 
-              
                 UrlCrawledSuccess?.Invoke(url);
-
-
             }
             catch (PuppeteerSharp.NavigationException ex)
             {
@@ -143,6 +160,20 @@ namespace SiteCrawlerAdvance
             {
                 Console.WriteLine($"An error occurred when navigating to {url}: {ex.Message}");
                 UrlCrawledFailed?.Invoke("Error: " + url);
+            }
+            finally
+            {
+                if (closePageWhenDone)
+                {
+                    try
+                    {
+                        await page.CloseAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to close page: {ex.Message}");
+                    }
+                }
             }
         }
 
@@ -217,10 +248,73 @@ namespace SiteCrawlerAdvance
 
         public async Task CloseBrowser()
         {
-            if (browser != null && browser.IsConnected)
+            var processToKill = browserProcess;
+
+            try
             {
-                await browser.CloseAsync();
-                browser = null!;
+                if (browser != null && browser.IsConnected)
+                    await browser.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error closing browser: {ex.Message}");
+            }
+            finally
+            {
+                TerminateBrowserProcess(processToKill);
+                browser = null;
+                browserProcess = null;
+                CleanupUserDataDir();
+            }
+        }
+
+        private void TerminateBrowserProcess(Process? processToKill)
+        {
+            if (processToKill == null)
+                return;
+
+            try
+            {
+                if (!processToKill.HasExited)
+                    processToKill.Kill(entireProcessTree: true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to terminate browser process: {ex.Message}");
+
+                try
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "taskkill",
+                        Arguments = $"/PID {processToKill.Id} /T /F",
+                        CreateNoWindow = true,
+                        UseShellExecute = false
+                    })?.WaitForExit();
+                }
+                catch (Exception taskKillEx)
+                {
+                    Console.WriteLine($"Failed to taskkill browser process: {taskKillEx.Message}");
+                }
+            }
+        }
+
+        private void CleanupUserDataDir()
+        {
+            if (userDataDir == null || !Directory.Exists(userDataDir))
+                return;
+
+            try
+            {
+                Directory.Delete(userDataDir, true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to delete browser profile: {ex.Message}");
+            }
+            finally
+            {
+                userDataDir = null;
             }
         }
     }
