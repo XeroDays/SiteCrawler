@@ -49,7 +49,7 @@
 - **Events:** `UrlCrawledStarted`, `UrlCrawledSuccess`, `UrlCrawledFailed`, `OnNewUrlFound`, `CrawlCompleted` — UI subscribes to all except `UrlCrawledStarted`.
 - **Chrome path:** `GetChromePath()` probes standard Windows install paths; throws if missing.
 - **Same-host crawl:** host match after normalize; query/hash stripped; `.pdf` skipped; non-http(s) skipped (`mailto:`, `tel:`, `javascript:`, `data:`); bare seed hosts get `https://` prefix via `NormalizeUrl` only at navigation — relative hrefs resolved to absolute in JS during discovery.
-- **Dynamic DOM:** before link scrape, `WaitForFunctionAsync` (15s, 200ms poll, non-fatal timeout) waits for anchor count stable ≥800ms or async `#navbar-placeholder` / `#footer-placeholder` fast-path; on timeout, scrape whatever exists.
+- **Dynamic DOM:** before link scrape, `WaitForFunctionAsync` (15s, 200ms poll, non-fatal timeout) waits for multi-region anchor stabilization (total `a[href]` plus header/nav/menu, nested menu, footer widgets when present on page) stable ≥800ms each, or async `#navbar-placeholder` / `#footer-placeholder` fast-path; on timeout, scrape whatever exists.
 - **Same-host match:** compares hosts with leading `www.` stripped.
 - **Process exit:** `AppDomain.ProcessExit` closes pending browser instances in `CrawlController`.
 - **Headless:** `false` (visible Chrome).
@@ -129,7 +129,7 @@ CSV/Excel export, scheduled runs, email alerts for failures, advanced filtering/
 **Trigger:** `CrawlPagesCount > 0` for batch (`canCrawl` true; decremented once per batch).
 
 **Flow:**
-`DOMContentLoaded` → optional `WaitForFunctionAsync` (anchor-count stabilization / placeholder fast-path) → `getUrlsFromPage` (JS all `a[href]` + shadow DOM walk + optional `data-href`/`data-url`, dedupe, skip non-navigable schemes, relative→absolute via page URL) → C# clean (query/hash, PDF, http(s) only, mailto guard, www-normalized same host) → `EnqueueUrl` (distinct vs queue + done) → `OnNewUrlFound` → UI + log
+`DOMContentLoaded` → optional `WaitForFunctionAsync` (multi-region anchor stabilization / placeholder fast-path) → `getUrlsFromPage` (JS all `a[href]` + shadow DOM walk + explicit header/nav/footer/menu region pass + same-origin iframes + optional `data-href`/`data-url`, dedupe, skip non-navigable schemes, relative→absolute via page URL) → C# clean (query/hash, PDF, http(s) only, mailto guard, www-normalized same host) → `EnqueueUrl` (distinct vs queue + done) → `OnNewUrlFound` → UI + log
 
 **Files:**
 - `SiteCrawlerAdvance/Helpers/Crawler.cs`
@@ -253,12 +253,12 @@ MainMenu (seed URLs, numericGroupPages, numericCrawlPages)
 - **URL normalization (navigation):** `NormalizeUrl` in `OpenPageAsync` — trim, prepend `https://` if no scheme; does not resolve relative paths
 - **URL normalization (discovery):** JS resolves relative hrefs to absolute; C# strips query/`#`, trailing `/`, skips PDF, http(s) only, same host (www-normalized)
 - **Skipped link schemes:** `mailto:`, `tel:`, `javascript:`, `data:`, bare `#` (JS + C# mailto guard)
-- **Link extraction:** all `a[href]` (includes nested `ul > li` menus), recursive shadow DOM, optional `data-href`/`data-url` under nav/header/`ul`
+- **Link extraction:** all `a[href]` (includes nested `ul > li` menus), recursive shadow DOM, explicit pass over header/nav/footer/`#links-list`/menu-content roots, same-origin iframe traversal, optional `data-href`/`data-url` under nav/header/`ul`
 - **UI labels:** Group Set → `numericGroupPages` (default 5 in ctor); Crawl Pages → `numericCrawlPages` (designer default 1)
 - **Button text:** `Intiate` (typo in designer)
 - **Failure prefixes:** `HTTP {status}:`, `Navigation:`, `Timeout:`, `Error:` on failed URL strings
 - **Navigation success:** main document HTTP status must be &lt; 400 (`GoToAsync` response); 404/5xx → `UrlCrawledFailed` with `HTTP {status}:` prefix
-- **Navigation timeout:** 60s; waits `DOMContentLoaded`; link scrape may wait up to 15s for anchor-count stabilization
+- **Navigation timeout:** 60s; waits `DOMContentLoaded`; link scrape may wait up to 15s for multi-region anchor stabilization
 - **Static serial:** `DataController.sno` per console log line
 - **urls.txt:** overwrites full discovered list on each new URL
 - **README:** user docs; code uses PuppeteerSharp (not Selenium)

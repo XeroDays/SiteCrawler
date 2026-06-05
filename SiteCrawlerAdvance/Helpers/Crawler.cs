@@ -157,24 +157,60 @@ namespace SiteCrawlerAdvance
                                     if (footerPlaceholder && placeholderFooterLinks > 0) return true;
                                 }
 
-                                if (!window.__scrapeLinkWatch) {
-                                    window.__scrapeLinkWatch = { last: 0, stableMs: 0, lastTs: Date.now() };
+                                if (!window.__scrapeLinkWatches) {
+                                    window.__scrapeLinkWatches = {};
                                 }
 
-                                const count = document.querySelectorAll('a[href]').length;
+                                const stableMs = 800;
                                 const now = Date.now();
-                                const watch = window.__scrapeLinkWatch;
+                                const watches = window.__scrapeLinkWatches;
 
-                                if (count !== watch.last) {
-                                    watch.last = count;
-                                    watch.stableMs = 0;
+                                const isStable = (key, count) => {
+                                    if (!watches[key]) {
+                                        watches[key] = { last: count, stableMs: 0, lastTs: now };
+                                        return false;
+                                    }
+                                    const watch = watches[key];
+                                    if (count !== watch.last) {
+                                        watch.last = count;
+                                        watch.stableMs = 0;
+                                        watch.lastTs = now;
+                                        return false;
+                                    }
+                                    watch.stableMs += now - watch.lastTs;
                                     watch.lastTs = now;
-                                    return false;
+                                    return watch.stableMs >= stableMs;
+                                };
+
+                                const totalCount = document.querySelectorAll('a[href]').length;
+                                if (totalCount === 0) return false;
+                                if (!isStable('total', totalCount)) return false;
+
+                                const hasHeaderNav = document.querySelector('header, nav, [class*=""menu""]');
+                                if (hasHeaderNav) {
+                                    const headerNavCount = document.querySelectorAll(
+                                        'header a[href], nav a[href], [role=""navigation""] a[href], [class*=""menu""] a[href]'
+                                    ).length;
+                                    if (!isStable('headerNav', headerNavCount)) return false;
                                 }
 
-                                watch.stableMs += now - watch.lastTs;
-                                watch.lastTs = now;
-                                return count > 0 && watch.stableMs >= 800;
+                                const hasNestedMenu = document.querySelector('header ul ul, nav ul ul, [class*=""menu-content""]');
+                                if (hasNestedMenu) {
+                                    const nestedMenuCount = document.querySelectorAll(
+                                        'header ul ul a[href], nav ul ul a[href], [class*=""menu-content""] a[href]'
+                                    ).length;
+                                    if (!isStable('nestedMenu', nestedMenuCount)) return false;
+                                }
+
+                                const hasFooterWidgets = document.querySelector('footer, #links-list, [class*=""footer""]');
+                                if (hasFooterWidgets) {
+                                    const footerWidgetsCount = document.querySelectorAll(
+                                        'footer a[href], #links-list a[href], [class*=""footer""] a[href]'
+                                    ).length;
+                                    if (!isStable('footerWidgets', footerWidgetsCount)) return false;
+                                }
+
+                                return true;
                             }",
                             new WaitForFunctionOptions { Timeout = 15000, PollingInterval = 200 });
                     }
@@ -191,17 +227,17 @@ namespace SiteCrawlerAdvance
             catch (PuppeteerSharp.NavigationException ex)
             {
                 Console.WriteLine($"Failed to navigate to {url}: {ex.Message}");
-                UrlCrawledFailed?.Invoke($"Navigation: {url} ({ex.Message})");
+                UrlCrawledFailed?.Invoke($"{url}");
             }
             catch (TimeoutException ex)
             {
                 Console.WriteLine($"Timeout when navigating to {url}: {ex.Message}");
-                UrlCrawledFailed?.Invoke("Timeout: " + url);
+                UrlCrawledFailed?.Invoke( url);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred when navigating to {url}: {ex.Message}");
-                UrlCrawledFailed?.Invoke("Error: " + url);
+                UrlCrawledFailed?.Invoke(url);
             }
             finally
             {
@@ -250,6 +286,17 @@ namespace SiteCrawlerAdvance
                     };
 
                     collectFromRoot(document);
+
+                    document.querySelectorAll('header, nav, [role=""navigation""], footer, #links-list, [class*=""menu-content""]').forEach(root => {
+                        collectFromRoot(root);
+                    });
+
+                    document.querySelectorAll('iframe').forEach(iframe => {
+                        try {
+                            const doc = iframe.contentDocument;
+                            if (doc) collectFromRoot(doc);
+                        } catch (_) {}
+                    });
 
                     document.querySelectorAll('nav [data-href], header [data-href], [role=""navigation""] [data-href], ul [data-href], nav [data-url], header [data-url], [role=""navigation""] [data-url], ul [data-url]').forEach(el => {
                         if (el.closest('a[href]')) return;

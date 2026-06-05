@@ -142,7 +142,7 @@
             txtSuccess.Location = new Point(1007, 34);
             txtSuccess.Multiline = true;
             txtSuccess.Name = "txtSuccess";
-            txtSuccess.Size = new Size(614, 766);
+            txtSuccess.Size = new Size(448, 736);
             txtSuccess.TabIndex = 3;
             // 
             // txtFailed
@@ -153,7 +153,7 @@
             txtFailed.Location = new Point(688, 34);
             txtFailed.Multiline = true;
             txtFailed.Name = "txtFailed";
-            txtFailed.Size = new Size(313, 766);
+            txtFailed.Size = new Size(313, 736);
             txtFailed.TabIndex = 4;
             // 
             // txtUrls
@@ -164,7 +164,7 @@
             txtUrls.Location = new Point(182, 34);
             txtUrls.Multiline = true;
             txtUrls.Name = "txtUrls";
-            txtUrls.Size = new Size(500, 766);
+            txtUrls.Size = new Size(500, 736);
             txtUrls.TabIndex = 5;
             // 
             // panel2
@@ -287,7 +287,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1633, 806);
+            ClientSize = new Size(1467, 776);
             Controls.Add(label9);
             Controls.Add(label8);
             Controls.Add(label7);
