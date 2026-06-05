@@ -93,6 +93,18 @@ namespace SiteCrawlerAdvance
             return url;
         }
 
+        private static string NormalizeHost(string host)
+        {
+            if (host.StartsWith("www.", StringComparison.OrdinalIgnoreCase))
+                return host.Substring(4);
+            return host;
+        }
+
+        private static bool IsSameHost(string pageUrl, string discoveredUrl)
+        {
+            return NormalizeHost(new Uri(pageUrl).Host) == NormalizeHost(new Uri(discoveredUrl).Host);
+        }
+
         private async Task OpenPageAsync(string url, bool canCrawl, IPage? reusePage)
         {
             if (browser == null)
@@ -124,17 +136,40 @@ namespace SiteCrawlerAdvance
                             @"() => {
                                 const navbarPlaceholder = document.getElementById('navbar-placeholder');
                                 const footerPlaceholder = document.getElementById('footer-placeholder');
-                                if (!navbarPlaceholder && !footerPlaceholder) return true;
+                                if (navbarPlaceholder || footerPlaceholder) {
+                                    const dropdownLinks = document.querySelectorAll(
+                                        'ul.dropdown-menu li a[href], ul li a.dropdown-item[href]'
+                                    ).length;
+                                    const placeholderNavLinks = navbarPlaceholder
+                                        ? document.querySelectorAll('#navbar-placeholder a[href]').length
+                                        : 0;
+                                    const placeholderFooterLinks = footerPlaceholder
+                                        ? document.querySelectorAll('#footer-placeholder a[href]').length
+                                        : 0;
+                                    if (navbarPlaceholder && (dropdownLinks > 0 || placeholderNavLinks > 5)) return true;
+                                    if (footerPlaceholder && placeholderFooterLinks > 0) return true;
+                                }
 
-                                const dropdownLinks = document.querySelectorAll('ul.dropdown-menu li a[href], ul li a.dropdown-item[href]').length;
-                                const footerLinks = document.querySelectorAll('#footer-placeholder a[href]').length;
-                                const navLinks = document.querySelectorAll('#navbar-placeholder a[href]').length;
+                                if (!window.__scrapeLinkWatch) {
+                                    window.__scrapeLinkWatch = { last: 0, stableMs: 0, lastTs: Date.now() };
+                                }
 
-                                if (navbarPlaceholder && (dropdownLinks > 0 || navLinks > 5)) return true;
-                                if (footerPlaceholder && footerLinks > 0) return true;
-                                return false;
+                                const count = document.querySelectorAll('a[href]').length;
+                                const now = Date.now();
+                                const watch = window.__scrapeLinkWatch;
+
+                                if (count !== watch.last) {
+                                    watch.last = count;
+                                    watch.stableMs = 0;
+                                    watch.lastTs = now;
+                                    return false;
+                                }
+
+                                watch.stableMs += now - watch.lastTs;
+                                watch.lastTs = now;
+                                return count > 0 && watch.stableMs >= 800;
                             }",
-                            new WaitForFunctionOptions { Timeout = 15000 });
+                            new WaitForFunctionOptions { Timeout = 15000, PollingInterval = 200 });
                     }
                     catch (WaitTaskTimeoutException)
                     {
@@ -187,9 +222,10 @@ namespace SiteCrawlerAdvance
                     const skip = h => !h || /^(mailto:|tel:|javascript:|data:|#)$/i.test(h.trim());
                     const seen = new Set();
                     const out = [];
-                    for (const a of document.querySelectorAll('a[href], ul li a[href]')) {
-                        const href = (a.getAttribute('href') || '').trim();
-                        if (skip(href)) continue;
+
+                    const addHref = (href) => {
+                        href = (href || '').trim();
+                        if (skip(href)) return;
                         try {
                             const abs = new URL(href, base).href;
                             if (/^https?:\/\//i.test(abs) && !seen.has(abs)) {
@@ -197,7 +233,22 @@ namespace SiteCrawlerAdvance
                                 out.push(abs);
                             }
                         } catch (_) {}
-                    }
+                    };
+
+                    const collectFromRoot = (root) => {
+                        root.querySelectorAll('a[href]').forEach(a => addHref(a.getAttribute('href')));
+                        root.querySelectorAll('*').forEach(el => {
+                            if (el.shadowRoot) collectFromRoot(el.shadowRoot);
+                        });
+                    };
+
+                    collectFromRoot(document);
+
+                    document.querySelectorAll('nav [data-href], header [data-href], [role=""navigation""] [data-href], ul [data-href], nav [data-url], header [data-url], [role=""navigation""] [data-url], ul [data-url]').forEach(el => {
+                        if (el.closest('a[href]')) return;
+                        addHref(el.getAttribute('data-href') || el.getAttribute('data-url'));
+                    });
+
                     return out;
                 })()
             ");
@@ -238,7 +289,7 @@ namespace SiteCrawlerAdvance
                     continue;
                 }
 
-                if (parsedUrl.Host == new Uri(url).Host)
+                if (IsSameHost(url, clean1))
                 {
                     OnNewUrlFound?.Invoke(clean1);
                 }

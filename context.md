@@ -49,7 +49,8 @@
 - **Events:** `UrlCrawledStarted`, `UrlCrawledSuccess`, `UrlCrawledFailed`, `OnNewUrlFound`, `CrawlCompleted` — UI subscribes to all except `UrlCrawledStarted`.
 - **Chrome path:** `GetChromePath()` probes standard Windows install paths; throws if missing.
 - **Same-host crawl:** host match after normalize; query/hash stripped; `.pdf` skipped; non-http(s) skipped (`mailto:`, `tel:`, `javascript:`, `data:`); bare seed hosts get `https://` prefix via `NormalizeUrl` only at navigation — relative hrefs resolved to absolute in JS during discovery.
-- **Dynamic DOM:** before link scrape, `WaitForFunctionAsync` (15s, non-fatal timeout) waits for async `#navbar-placeholder` / `#footer-placeholder` injection (dropdown items, nav link count, or footer links); static pages without placeholders proceed immediately.
+- **Dynamic DOM:** before link scrape, `WaitForFunctionAsync` (15s, 200ms poll, non-fatal timeout) waits for anchor count stable ≥800ms or async `#navbar-placeholder` / `#footer-placeholder` fast-path; on timeout, scrape whatever exists.
+- **Same-host match:** compares hosts with leading `www.` stripped.
 - **Process exit:** `AppDomain.ProcessExit` closes pending browser instances in `CrawlController`.
 - **Headless:** `false` (visible Chrome).
 
@@ -128,7 +129,7 @@ CSV/Excel export, scheduled runs, email alerts for failures, advanced filtering/
 **Trigger:** `CrawlPagesCount > 0` for batch (`canCrawl` true; decremented once per batch).
 
 **Flow:**
-`DOMContentLoaded` → optional `WaitForFunctionAsync` (dynamic nav/footer) → `getUrlsFromPage` (JS `a[href]` + `ul li a[href]`, dedupe, skip non-navigable schemes, relative→absolute via page URL) → C# clean (query/hash, PDF, http(s) only, mailto guard) → same host → `OnNewUrlFound` → enqueue `UrlsToComplete` → UI + log
+`DOMContentLoaded` → optional `WaitForFunctionAsync` (anchor-count stabilization / placeholder fast-path) → `getUrlsFromPage` (JS all `a[href]` + shadow DOM walk + optional `data-href`/`data-url`, dedupe, skip non-navigable schemes, relative→absolute via page URL) → C# clean (query/hash, PDF, http(s) only, mailto guard, www-normalized same host) → `OnNewUrlFound` → enqueue `UrlsToComplete` → UI + log
 
 **Files:**
 - `SiteCrawlerAdvance/Helpers/Crawler.cs`
@@ -182,7 +183,7 @@ CSV/Excel export, scheduled runs, email alerts for failures, advanced filtering/
 ```
 MainMenu (seed URLs, numericGroupPages, numericCrawlPages)
   → CrawlController (queue, dedupe, Except UrlsDone, batch size)
-    → Crawler (Chrome/Puppeteer, tabs, DOMContentLoaded nav, dynamic nav wait, link scrape)
+    → Crawler (Chrome/Puppeteer, tabs, DOMContentLoaded nav, anchor stabilization wait, shadow-DOM link scrape)
       → Events → MainMenu (txtSuccess / txtFailed / txtUrls, labels)
       → urls.txt (numbered discovered URLs)
 ```
@@ -250,13 +251,13 @@ MainMenu (seed URLs, numericGroupPages, numericCrawlPages)
 - **UI thread:** `RunOnUiThread` / `BeginInvoke` for event handlers updating controls
 - **URL normalization (UI lists):** `Uri.UnescapeDataString`, distinct, sort
 - **URL normalization (navigation):** `NormalizeUrl` in `OpenPageAsync` — trim, prepend `https://` if no scheme; does not resolve relative paths
-- **URL normalization (discovery):** JS resolves relative hrefs to absolute; C# strips query/`#`, trailing `/`, skips PDF, http(s) only, same host
+- **URL normalization (discovery):** JS resolves relative hrefs to absolute; C# strips query/`#`, trailing `/`, skips PDF, http(s) only, same host (www-normalized)
 - **Skipped link schemes:** `mailto:`, `tel:`, `javascript:`, `data:`, bare `#` (JS + C# mailto guard)
-- **Link selectors:** `a[href]`, `ul li a[href]` (includes nested nav dropdown items once DOM injected)
+- **Link extraction:** all `a[href]` (includes nested `ul > li` menus), recursive shadow DOM, optional `data-href`/`data-url` under nav/header/`ul`
 - **UI labels:** Group Set → `numericGroupPages` (default 5 in ctor); Crawl Pages → `numericCrawlPages` (designer default 1)
 - **Button text:** `Intiate` (typo in designer)
 - **Failure prefixes:** `Navigation:`, `Timeout:`, `Error:` on failed URL strings
-- **Navigation timeout:** 60s; waits `DOMContentLoaded`; link scrape may wait up to 15s for dynamic nav/footer
+- **Navigation timeout:** 60s; waits `DOMContentLoaded`; link scrape may wait up to 15s for anchor-count stabilization
 - **Static serial:** `DataController.sno` per console log line
 - **urls.txt:** overwrites full discovered list on each new URL
 - **README:** user docs; code uses PuppeteerSharp (not Selenium)
