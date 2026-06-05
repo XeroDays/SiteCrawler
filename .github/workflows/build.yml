@@ -32,17 +32,6 @@ jobs:
         run: |
           powershell Compress-Archive -Path ${{ env.BUILD_PATH }}\* -DestinationPath ${{ env.BUILD_PATH }}\${{ env.ZIP_NAME }}
 
-      - name: 📤 Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: build
-          path: ${{ env.BUILD_PATH }}/${{ env.ZIP_NAME }}
-
-      - name: ⬇️ Download build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: build
-
       - name: 🚀📤 Upload zip to GitHub release
         uses: softprops/action-gh-release@v1
         with:
