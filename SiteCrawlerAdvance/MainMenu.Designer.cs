@@ -101,17 +101,17 @@
             label4.AutoSize = true;
             label4.Location = new Point(3, 44);
             label4.Name = "label4";
-            label4.Size = new Size(88, 20);
+            label4.Size = new Size(105, 20);
             label4.TabIndex = 3;
-            label4.Text = "Crawl Pages";
+            label4.Text = "Crawl Sessions";
             // 
             // numericCrawlPages
             // 
             numericCrawlPages.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            numericCrawlPages.Location = new Point(97, 41);
+            numericCrawlPages.Location = new Point(112, 41);
             numericCrawlPages.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             numericCrawlPages.Name = "numericCrawlPages";
-            numericCrawlPages.Size = new Size(61, 27);
+            numericCrawlPages.Size = new Size(46, 27);
             numericCrawlPages.TabIndex = 2;
             numericCrawlPages.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
