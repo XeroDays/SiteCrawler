@@ -116,11 +116,18 @@ namespace SiteCrawlerAdvance
 
             try
             {
-                await page.GoToAsync(url, new NavigationOptions
+                var response = await page.GoToAsync(url, new NavigationOptions
                 {
                     Timeout = 60000,
                     WaitUntil = new[] { WaitUntilNavigation.DOMContentLoaded }
                 });
+
+                if (response == null || (int)response.Status >= 400)
+                {
+                    var status = response != null ? (int)response.Status : 0;
+                    UrlCrawledFailed?.Invoke($"{url}");
+                    return;
+                }
 
                 if (page.MainFrame == null)
                 {

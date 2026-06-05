@@ -43,7 +43,7 @@
 
 - **Entry:** `SiteCrawlerAdvance/Program.cs` → `Application.Run(new MainMenu())`.
 - **UI** (`MainMenu`) wires events, holds URL lists, thread-safe updates via `RunOnUiThread`; does not launch browsers directly.
-- **Orchestration** (`CrawlController`) owns queue, dedupe, batch dequeue, crawl-depth budget (`CrawlPagesCount`), sequential batches via `ReTrigger` → `InitiateBunch`.
+- **Orchestration** (`CrawlController`) owns queue, dedupe at enqueue (`EnqueueUrl` vs `UrlsToComplete` + `UrlsDone`, normalized URL), batch dequeue, crawl-depth budget (`CrawlPagesCount`), sequential batches via `ReTrigger` → `InitiateBunch`.
 - **Browser** (`Crawler` in `Helpers/` folder, `SiteCrawlerAdvance` namespace) owns Puppeteer launch, tabs, navigation, optional link extraction.
 - **No service/repository/API layers** — flat helper classes; static `DataController.sno` for console serial logging.
 - **Events:** `UrlCrawledStarted`, `UrlCrawledSuccess`, `UrlCrawledFailed`, `OnNewUrlFound`, `CrawlCompleted` — UI subscribes to all except `UrlCrawledStarted`.
@@ -129,7 +129,7 @@ CSV/Excel export, scheduled runs, email alerts for failures, advanced filtering/
 **Trigger:** `CrawlPagesCount > 0` for batch (`canCrawl` true; decremented once per batch).
 
 **Flow:**
-`DOMContentLoaded` → optional `WaitForFunctionAsync` (anchor-count stabilization / placeholder fast-path) → `getUrlsFromPage` (JS all `a[href]` + shadow DOM walk + optional `data-href`/`data-url`, dedupe, skip non-navigable schemes, relative→absolute via page URL) → C# clean (query/hash, PDF, http(s) only, mailto guard, www-normalized same host) → `OnNewUrlFound` → enqueue `UrlsToComplete` → UI + log
+`DOMContentLoaded` → optional `WaitForFunctionAsync` (anchor-count stabilization / placeholder fast-path) → `getUrlsFromPage` (JS all `a[href]` + shadow DOM walk + optional `data-href`/`data-url`, dedupe, skip non-navigable schemes, relative→absolute via page URL) → C# clean (query/hash, PDF, http(s) only, mailto guard, www-normalized same host) → `EnqueueUrl` (distinct vs queue + done) → `OnNewUrlFound` → UI + log
 
 **Files:**
 - `SiteCrawlerAdvance/Helpers/Crawler.cs`
@@ -256,7 +256,8 @@ MainMenu (seed URLs, numericGroupPages, numericCrawlPages)
 - **Link extraction:** all `a[href]` (includes nested `ul > li` menus), recursive shadow DOM, optional `data-href`/`data-url` under nav/header/`ul`
 - **UI labels:** Group Set → `numericGroupPages` (default 5 in ctor); Crawl Pages → `numericCrawlPages` (designer default 1)
 - **Button text:** `Intiate` (typo in designer)
-- **Failure prefixes:** `Navigation:`, `Timeout:`, `Error:` on failed URL strings
+- **Failure prefixes:** `HTTP {status}:`, `Navigation:`, `Timeout:`, `Error:` on failed URL strings
+- **Navigation success:** main document HTTP status must be &lt; 400 (`GoToAsync` response); 404/5xx → `UrlCrawledFailed` with `HTTP {status}:` prefix
 - **Navigation timeout:** 60s; waits `DOMContentLoaded`; link scrape may wait up to 15s for anchor-count stabilization
 - **Static serial:** `DataController.sno` per console log line
 - **urls.txt:** overwrites full discovered list on each new URL

@@ -26,6 +26,25 @@ namespace SiteCrawlerAdvance.Helpers
         private int CrawlPagesCount;
 
 
+        private static string NormalizeQueueUrl(string url)
+        {
+            url = Uri.UnescapeDataString(url.Trim());
+            if (url.EndsWith('/'))
+                url = url.TrimEnd('/');
+            return url;
+        }
+
+        private bool EnqueueUrl(string url)
+        {
+            url = NormalizeQueueUrl(url);
+            if (UrlsDone.Contains(url) || UrlsToComplete.Contains(url))
+                return false;
+
+            UrlsToComplete.Add(url);
+            return true;
+        }
+
+
         public void StartCrawling(List<string> urls, int numberOfTabsPerSession,int crawlPagesCount)
         {
             NumberOfTabsPerSession = numberOfTabsPerSession;
@@ -33,7 +52,8 @@ namespace SiteCrawlerAdvance.Helpers
             
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
 
-            UrlsToComplete.AddRange(urls);
+            foreach (var u in urls)
+                EnqueueUrl(u);
 
             ReTrigger();
         }
@@ -50,6 +70,7 @@ namespace SiteCrawlerAdvance.Helpers
 
             browserCrawler.UrlCrawledSuccess += (url) =>
             {
+                url = NormalizeQueueUrl(url);
                 if (!UrlsDone.Contains(url))
                     UrlsDone.Add(url);
                 UrlCrawledSuccess?.Invoke(url);
@@ -62,8 +83,9 @@ namespace SiteCrawlerAdvance.Helpers
 
             browserCrawler.OnNewUrlFound += (url) =>
             {
-                UrlsToComplete.Add(url);
-                OnNewUrlFound?.Invoke(url);
+                url = NormalizeQueueUrl(url);
+                if (EnqueueUrl(url))
+                    OnNewUrlFound?.Invoke(url);
             };
 
             pending.Add(browserCrawler);
