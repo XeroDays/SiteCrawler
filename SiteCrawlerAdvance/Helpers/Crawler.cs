@@ -12,6 +12,15 @@ namespace SiteCrawlerAdvance
         public event SiteCrawledEventHandler UrlCrawledFailed;
         public event SiteCrawledEventHandler OnNewUrlFound;
 
+        private static readonly HashSet<string> _skipExtensions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ".pdf", ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp",
+            ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
+            ".zip", ".rar", ".7z", ".tar", ".gz",
+            ".mp3", ".mp4", ".avi", ".mov", ".wmv",
+            ".woff", ".woff2", ".ttf", ".eot", ".ico",
+            ".css", ".js", ".xml", ".json", ".csv"
+        };
 
         static string GetChromePath()
         {
@@ -186,10 +195,10 @@ namespace SiteCrawlerAdvance
                                 if (totalCount === 0) return false;
                                 if (!isStable('total', totalCount)) return false;
 
-                                const hasHeaderNav = document.querySelector('header, nav, [class*=""menu""]');
+                                const hasHeaderNav = document.querySelector('header, nav, [class*=""menu""], [class*=""nav""]');
                                 if (hasHeaderNav) {
                                     const headerNavCount = document.querySelectorAll(
-                                        'header a[href], nav a[href], [role=""navigation""] a[href], [class*=""menu""] a[href]'
+                                        'header a[href], nav a[href], [role=""navigation""] a[href], [class*=""menu""] a[href], [class*=""nav""] a[href]'
                                     ).length;
                                     if (!isStable('headerNav', headerNavCount)) return false;
                                 }
@@ -279,7 +288,7 @@ namespace SiteCrawlerAdvance
                     };
 
                     const collectFromRoot = (root) => {
-                        root.querySelectorAll('a[href]').forEach(a => addHref(a.getAttribute('href')));
+                        root.querySelectorAll('a[href], area[href]').forEach(el => addHref(el.getAttribute('href')));
                         root.querySelectorAll('*').forEach(el => {
                             if (el.shadowRoot) collectFromRoot(el.shadowRoot);
                         });
@@ -287,7 +296,7 @@ namespace SiteCrawlerAdvance
 
                     collectFromRoot(document);
 
-                    document.querySelectorAll('header, nav, [role=""navigation""], footer, #links-list, [class*=""menu-content""]').forEach(root => {
+                    document.querySelectorAll('header, nav, [role=""navigation""], footer, #links-list, [class*=""menu-content""], [class*=""nav""]').forEach(root => {
                         collectFromRoot(root);
                     });
 
@@ -298,7 +307,7 @@ namespace SiteCrawlerAdvance
                         } catch (_) {}
                     });
 
-                    document.querySelectorAll('nav [data-href], header [data-href], [role=""navigation""] [data-href], ul [data-href], nav [data-url], header [data-url], [role=""navigation""] [data-url], ul [data-url]').forEach(el => {
+                    document.querySelectorAll('[data-href], [data-url]').forEach(el => {
                         if (el.closest('a[href]')) return;
                         addHref(el.getAttribute('data-href') || el.getAttribute('data-url'));
                     });
@@ -331,8 +340,7 @@ namespace SiteCrawlerAdvance
                 }
 
 
-                //check if the url neding is pdf
-                if (clean1.EndsWith(".pdf"))
+                if (_skipExtensions.Contains(Path.GetExtension(clean1)))
                 {
                     continue;
                 }
