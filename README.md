@@ -8,9 +8,7 @@
 
 ## Gallery
 
-![image](https://github.com/user-attachments/assets/e93c96ef-0c17-41d5-b3f3-4695ac3ce62e)
-
-![image](https://github.com/user-attachments/assets/afedc9a1-44aa-4008-9c27-05fbb68a627f)
+<img width="1303" height="498" alt="image" src="https://github.com/user-attachments/assets/7e9b40a4-0fa6-4108-8179-b0826d249e44" />
 
 ## Application
 
